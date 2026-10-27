@@ -1,6 +1,32 @@
 [package]
 name = "mm-server"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+default-run = "mm-server"
+
+[[bin]]
+name = "mm-server"
+path = "src/main.rs"
+
+[[bin]]
+name = "mm-schemas"
+path = "src/bin/mm_schemas.rs"
 
 [dependencies]
+mm-core.workspace = true
+axum.workspace = true
+tower-http.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+schemars.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[dev-dependencies]
+tower.workspace = true
+http-body-util.workspace = true

@@ -1,0 +1,64 @@
+{
+  "header": {
+    "id": "maze_small",
+    "name": "Small 4x3 demo",
+    "rules_profile": "rcj_maze_2027_draft",
+    "seed": 1,
+    "tile_m": 0.28,
+    "tolerance_frac": 0.0,
+    "generator_version": "fixture-0"
+  },
+  "grid": { "w": 4, "h": 3 },
+  "tiles": [
+    { "at": { "col": 0, "row": 0 }, "kind": "start", "class": "linear", "in_dz": false, "height_ref": 0.0, "features": [] },
+    { "at": { "col": 1, "row": 0 }, "kind": "normal", "class": "linear", "in_dz": false, "height_ref": 0.0, "features": [] },
+    { "at": { "col": 2, "row": 0 }, "kind": "normal", "class": "linear", "in_dz": false, "height_ref": 0.0, "features": [] },
+    { "at": { "col": 3, "row": 0 }, "kind": "silver", "class": "linear", "in_dz": false, "height_ref": 0.0, "features": [] },
+    { "at": { "col": 0, "row": 1 }, "kind": "normal", "class": "linear", "in_dz": false, "height_ref": 0.0, "features": [] },
+    { "at": { "col": 1, "row": 1 }, "kind": "blue", "class": "linear", "in_dz": false, "height_ref": 0.0, "features": [] },
+    { "at": { "col": 2, "row": 1 }, "kind": "black", "class": "linear", "in_dz": false, "height_ref": 0.0, "features": [] },
+    { "at": { "col": 3, "row": 1 }, "kind": "normal", "class": "linear", "in_dz": false, "height_ref": 0.0, "features": [] },
+    { "at": { "col": 0, "row": 2 }, "kind": "normal", "class": "linear", "in_dz": false, "height_ref": 0.0, "features": [] },
+    { "at": { "col": 1, "row": 2 }, "kind": "normal", "class": "linear", "in_dz": false, "height_ref": 0.0, "features": [] },
+    { "at": { "col": 2, "row": 2 }, "kind": "normal", "class": "linear", "in_dz": false, "height_ref": 0.0, "features": [] },
+    { "at": { "col": 3, "row": 2 }, "kind": "normal", "class": "linear", "in_dz": false, "height_ref": 0.0, "features": [] }
+  ],
+  "walls": [
+    { "a": { "x": 0.28, "y": 0.0 }, "b": { "x": 0.28, "y": 0.28 }, "z0": 0.0, "height_m": 0.15, "edge": { "tile": { "col": 0, "row": 0 }, "side": "east" } },
+    { "a": { "x": 0.28, "y": 0.56 }, "b": { "x": 0.56, "y": 0.56 }, "z0": 0.0, "height_m": 0.15, "edge": { "tile": { "col": 1, "row": 1 }, "side": "north" } },
+    { "a": { "x": 0.56, "y": 0.28 }, "b": { "x": 0.84, "y": 0.28 }, "z0": 0.0, "height_m": 0.15, "edge": { "tile": { "col": 2, "row": 0 }, "side": "north" } },
+    { "a": { "x": 0.84, "y": 0.28 }, "b": { "x": 0.84, "y": 0.56 }, "z0": 0.0, "height_m": 0.15, "edge": { "tile": { "col": 2, "row": 1 }, "side": "east" } },
+    { "a": { "x": 0.56, "y": 0.56 }, "b": { "x": 0.56, "y": 0.84 }, "z0": 0.0, "height_m": 0.15, "edge": { "tile": { "col": 1, "row": 2 }, "side": "east" } }
+  ],
+  "victims": [
+    {
+      "id": 0,
+      "kind": { "type": "smiley", "status": "harmed" },
+      "status": "harmed",
+      "pos": { "x": 0.28, "y": 0.14, "z": 0.1 },
+      "facing_yaw": 0.0,
+      "rotation": 0.0,
+      "tile": { "col": 0, "row": 0 },
+      "wall_side": "east",
+      "tier": "linear"
+    },
+    {
+      "id": 1,
+      "kind": { "type": "smiley", "status": "stable" },
+      "status": "stable",
+      "pos": { "x": 0.7, "y": 0.28, "z": 0.1 },
+      "facing_yaw": 1.5707963267948966,
+      "rotation": 0.0,
+      "tile": { "col": 2, "row": 0 },
+      "wall_side": "north",
+      "tier": "linear"
+    }
+  ],
+  "obstacles": [],
+  "zones": {
+    "start": { "col": 0, "row": 0 },
+    "start_yaw": 0.0,
+    "checkpoints": [{ "col": 3, "row": 0 }],
+    "dangerous_zone": null
+  }
+}

@@ -1,0 +1,428 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "FieldRules": {
+      "properties": {
+        "blue_stop_s": {
+          "format": "double",
+          "type": "number"
+        },
+        "bridge_clearance_min_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "cognitive_ring_diameters_m": {
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": "array"
+        },
+        "cognitive_ring_values": {
+          "description": "Ring colour -> value, summed to get the cognitive target's status.",
+          "items": {
+            "$ref": "#/definitions/RingValue"
+          },
+          "type": "array"
+        },
+        "obstacle_min_height_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "obstacle_wall_clearance_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "ramp_max_deg": {
+          "format": "double",
+          "type": "number"
+        },
+        "speed_bump_max_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "speed_bump_max_m_dz": {
+          "format": "double",
+          "type": "number"
+        },
+        "stairs_incline_max_deg": {
+          "format": "double",
+          "type": "number"
+        },
+        "stairs_incline_max_deg_dz": {
+          "format": "double",
+          "type": "number"
+        },
+        "stairs_step_max_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "stairs_tread_min_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "tile_lip_max_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "tile_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "tolerance_frac": {
+          "description": "Allowed deviation on all measurements, as a fraction (0.10 = ±10 %).",
+          "format": "double",
+          "type": "number"
+        },
+        "victim_diameter_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "victim_height_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "wall_height_min_m": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "blue_stop_s",
+        "bridge_clearance_min_m",
+        "cognitive_ring_diameters_m",
+        "cognitive_ring_values",
+        "obstacle_min_height_m",
+        "obstacle_wall_clearance_m",
+        "ramp_max_deg",
+        "speed_bump_max_m",
+        "speed_bump_max_m_dz",
+        "stairs_incline_max_deg",
+        "stairs_incline_max_deg_dz",
+        "stairs_step_max_m",
+        "stairs_tread_min_m",
+        "tile_lip_max_m",
+        "tile_m",
+        "tolerance_frac",
+        "victim_diameter_m",
+        "victim_height_m",
+        "wall_height_min_m"
+      ],
+      "type": "object"
+    },
+    "PlayRules": {
+      "properties": {
+        "exit_light_s": {
+          "description": "5.6.12: light on, robot still, on the start tile, this long.",
+          "format": "double",
+          "type": "number"
+        },
+        "identification_blink_off_s": {
+          "format": "double",
+          "type": "number"
+        },
+        "identification_blink_on_s": {
+          "format": "double",
+          "type": "number"
+        },
+        "identification_light_s": {
+          "description": "5.6.1: blink the Identification Light this long while stationary.",
+          "format": "double",
+          "type": "number"
+        },
+        "kit_max_distance_m": {
+          "description": "Kits must land within this distance of the victim.",
+          "format": "double",
+          "type": "number"
+        },
+        "kit_min_dimension_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "lop_min_displacement_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "lop_no_progress_s": {
+          "description": "Sim-only: the rules leave LoP to the captain; we auto-call it after this long without `lop_min_displacement_m` of net movement.",
+          "format": "double",
+          "type": "number"
+        },
+        "run_duration_s": {
+          "format": "double",
+          "type": "number"
+        },
+        "stationary_mps": {
+          "description": "Speed below which the robot counts as stationary (sim-only).",
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "exit_light_s",
+        "identification_blink_off_s",
+        "identification_blink_on_s",
+        "identification_light_s",
+        "kit_max_distance_m",
+        "kit_min_dimension_m",
+        "lop_min_displacement_m",
+        "lop_no_progress_s",
+        "run_duration_s",
+        "stationary_mps"
+      ],
+      "type": "object"
+    },
+    "RingColor": {
+      "enum": [
+        "black",
+        "red",
+        "yellow",
+        "green",
+        "blue"
+      ],
+      "type": "string"
+    },
+    "RingValue": {
+      "properties": {
+        "color": {
+          "$ref": "#/definitions/RingColor"
+        },
+        "value": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "color",
+        "value"
+      ],
+      "type": "object"
+    },
+    "RobotRules": {
+      "properties": {
+        "max_height_m": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "max_height_m"
+      ],
+      "type": "object"
+    },
+    "ScoringRules": {
+      "description": "§5.6 of the 2027 draft. Variable names follow the rules: SVI = successful victim identifications, SRD = successful rescue-kit deployments, SBV = blue tiles visited once, SSN = stairs negotiated, SRN = ramps negotiated, LoP = lack-of-progress count.",
+      "properties": {
+        "blue_revisit_penalty": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "blue_tile": {
+          "description": "5.6.6: first visit of a blue tile, minus `blue_revisit_penalty` per revisit, floor 0.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "checkpoint": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "exit_per_sbv": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "exit_per_srn": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "exit_per_ssn": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "exit_per_svi": {
+          "description": "5.6.12 exit bonus: SVI*a + SBV*b + SSN*c + SRN*d.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "identify_within_m": {
+          "description": "5.6.1/5.6.14: identification must happen within this distance of the victim.",
+          "format": "double",
+          "type": "number"
+        },
+        "kit_points_by_count": {
+          "description": "5.6.3-5: points by number of kits deployed to one victim (index 0 = 1 kit).",
+          "items": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        "kits_max": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/StatusCounts"
+            }
+          ],
+          "description": "Kits that count per victim status."
+        },
+        "misidentification": {
+          "description": "5.6.14, negative.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "notes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "ramp": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "reliability_per_lop": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "reliability_per_sbv": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "reliability_per_srd": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "reliability_per_svi": {
+          "description": "5.6.7 reliability bonus: SVI*a + SRD*b + SBV*c - LoP*d, floor 0.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "speed_bump_tile": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "stairs": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "victim_points": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/VictimPoints"
+            }
+          ],
+          "description": "5.6.2: identification points by tile class and victim kind."
+        }
+      },
+      "required": [
+        "blue_revisit_penalty",
+        "blue_tile",
+        "checkpoint",
+        "exit_per_sbv",
+        "exit_per_srn",
+        "exit_per_ssn",
+        "exit_per_svi",
+        "identify_within_m",
+        "kit_points_by_count",
+        "kits_max",
+        "misidentification",
+        "ramp",
+        "reliability_per_lop",
+        "reliability_per_sbv",
+        "reliability_per_srd",
+        "reliability_per_svi",
+        "speed_bump_tile",
+        "stairs",
+        "victim_points"
+      ],
+      "type": "object"
+    },
+    "StatusCounts": {
+      "properties": {
+        "harmed": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "stable": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "unharmed": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "harmed",
+        "stable",
+        "unharmed"
+      ],
+      "type": "object"
+    },
+    "VictimPoints": {
+      "properties": {
+        "floating_cognitive": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "floating_smiley": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "linear_cognitive": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "linear_smiley": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "floating_cognitive",
+        "floating_smiley",
+        "linear_cognitive",
+        "linear_smiley"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "field": {
+      "$ref": "#/definitions/FieldRules"
+    },
+    "id": {
+      "description": "e.g. `rcj_maze_2027_draft`.",
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "play": {
+      "$ref": "#/definitions/PlayRules"
+    },
+    "robot": {
+      "$ref": "#/definitions/RobotRules"
+    },
+    "scoring": {
+      "$ref": "#/definitions/ScoringRules"
+    },
+    "source_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "field",
+    "id",
+    "name",
+    "play",
+    "robot",
+    "scoring",
+    "source_url"
+  ],
+  "title": "RulesProfile",
+  "type": "object"
+}

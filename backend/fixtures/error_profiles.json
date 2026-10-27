@@ -1,0 +1,137 @@
+[
+  {
+    "camera": {
+      "blur_omega": 1000000.0,
+      "blur_recall": 1.0,
+      "class_confusion": 0.0,
+      "decoy_confusion": 0.0,
+      "false_positive": 0.0,
+      "latency_ms": 0.0,
+      "recall": 1.0,
+      "ring_confusion": 0.0
+    },
+    "color": {
+      "ambient_jitter": 0.0,
+      "flicker": false,
+      "sigma_frac": 0.0
+    },
+    "field": {
+      "tolerance_use": 0.0
+    },
+    "id": "clean",
+    "imu": {
+      "heading_walk_deg_rthr": 0.0,
+      "mag_event_deg": 0.0,
+      "mag_event_rate": 0.0,
+      "noise_scale": 0.0,
+      "vibration_deg": 0.0
+    },
+    "name": "Clean (no errors)",
+    "tof": {
+      "blind": 0.0,
+      "crosstalk": 0.0,
+      "dropout": 0.0,
+      "sigma_base_mm": 0.0,
+      "sigma_per_m_mm": 0.0
+    },
+    "wheel": {
+      "collision_yaw_kick": 0.0,
+      "deadband_mps": 0.0,
+      "max_accel_mps2": 100.0,
+      "slip_blue": 0.0,
+      "slip_normal": 0.0,
+      "slip_ramp": 0.0,
+      "speed_sigma_frac": 0.0
+    }
+  },
+  {
+    "camera": {
+      "blur_omega": 2.0,
+      "blur_recall": 0.5,
+      "class_confusion": 0.03,
+      "decoy_confusion": 0.1,
+      "false_positive": 0.002,
+      "latency_ms": 60.0,
+      "recall": 0.92,
+      "ring_confusion": 0.02
+    },
+    "color": {
+      "ambient_jitter": 0.1,
+      "flicker": false,
+      "sigma_frac": 0.02
+    },
+    "field": {
+      "tolerance_use": 1.0
+    },
+    "id": "realistic",
+    "imu": {
+      "heading_walk_deg_rthr": 0.0,
+      "mag_event_deg": 3.0,
+      "mag_event_rate": 0.01,
+      "noise_scale": 1.0,
+      "vibration_deg": 0.5
+    },
+    "name": "Realistic (datasheet-typical)",
+    "tof": {
+      "blind": 0.001,
+      "crosstalk": 0.005,
+      "dropout": 0.01,
+      "sigma_base_mm": 3.0,
+      "sigma_per_m_mm": 5.0
+    },
+    "wheel": {
+      "collision_yaw_kick": 0.03,
+      "deadband_mps": 0.005,
+      "max_accel_mps2": 2.0,
+      "slip_blue": 0.1,
+      "slip_normal": 0.02,
+      "slip_ramp": 0.08,
+      "speed_sigma_frac": 0.02
+    }
+  },
+  {
+    "camera": {
+      "blur_omega": 2.0,
+      "blur_recall": 0.5,
+      "class_confusion": 0.1,
+      "decoy_confusion": 0.3,
+      "false_positive": 0.01,
+      "latency_ms": 150.0,
+      "recall": 0.75,
+      "ring_confusion": 0.08
+    },
+    "color": {
+      "ambient_jitter": 0.35,
+      "flicker": true,
+      "sigma_frac": 0.08
+    },
+    "field": {
+      "tolerance_use": 1.0
+    },
+    "id": "chaos",
+    "imu": {
+      "heading_walk_deg_rthr": 2.0,
+      "mag_event_deg": 10.0,
+      "mag_event_rate": 0.05,
+      "noise_scale": 3.0,
+      "vibration_deg": 2.0
+    },
+    "name": "Chaos (stress test)",
+    "tof": {
+      "blind": 0.01,
+      "crosstalk": 0.03,
+      "dropout": 0.08,
+      "sigma_base_mm": 10.0,
+      "sigma_per_m_mm": 20.0
+    },
+    "wheel": {
+      "collision_yaw_kick": 0.1,
+      "deadband_mps": 0.005,
+      "max_accel_mps2": 2.0,
+      "slip_blue": 0.25,
+      "slip_normal": 0.06,
+      "slip_ramp": 0.2,
+      "speed_sigma_frac": 0.06
+    }
+  }
+]

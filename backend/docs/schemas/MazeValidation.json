@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ConfigIssue": {
+      "description": "One problem found by `RobotConfig::validate`.",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/definitions/Severity"
+        }
+      },
+      "required": [
+        "message",
+        "path",
+        "severity"
+      ],
+      "type": "object"
+    },
+    "Severity": {
+      "enum": [
+        "error",
+        "warning"
+      ],
+      "type": "string"
+    }
+  },
+  "description": "`POST /api/mazes/validate` response.",
+  "properties": {
+    "enterable_tiles": {
+      "description": "Tiles that are not black.",
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "issues": {
+      "items": {
+        "$ref": "#/definitions/ConfigIssue"
+      },
+      "type": "array"
+    },
+    "ok": {
+      "type": "boolean"
+    },
+    "reachable_tiles": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "enterable_tiles",
+    "issues",
+    "ok",
+    "reachable_tiles"
+  ],
+  "title": "MazeValidation",
+  "type": "object"
+}

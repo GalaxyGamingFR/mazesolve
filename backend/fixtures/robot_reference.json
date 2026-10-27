@@ -1,0 +1,225 @@
+{
+  "body": {
+    "collision_radius_m": 0.095,
+    "height_m": 0.12,
+    "length_m": 0.19,
+    "mass_kg": 1.4,
+    "width_m": 0.19
+  },
+  "cameras": [
+    {
+      "hfov_deg": 70.0,
+      "id": "cam_left",
+      "max_range_m": 0.6,
+      "model": "openmv_n6",
+      "pose": {
+        "pitch": 0.0,
+        "x": 0.0,
+        "y": 0.09,
+        "yaw": 1.5707963267948966,
+        "z": 0.07
+      },
+      "rate_hz": 20.0,
+      "vfov_deg": 55.0
+    },
+    {
+      "hfov_deg": 70.0,
+      "id": "cam_right",
+      "max_range_m": 0.6,
+      "model": "openmv_n6",
+      "pose": {
+        "pitch": 0.0,
+        "x": 0.0,
+        "y": -0.09,
+        "yaw": -1.5707963267948966,
+        "z": 0.07
+      },
+      "rate_hz": 20.0,
+      "vfov_deg": 55.0
+    }
+  ],
+  "color": [
+    {
+      "gain": 16.0,
+      "id": "color0",
+      "integration_ms": 20.0,
+      "model": "as7343",
+      "pose": {
+        "pitch": -1.5707963267948966,
+        "x": 0.05,
+        "y": 0.0,
+        "yaw": 0.0,
+        "z": 0.01
+      },
+      "rate_hz": 20.0
+    }
+  ],
+  "id": null,
+  "imu": "imx5_tactical",
+  "kits": 12,
+  "name": "Reference RCJ robot",
+  "tof": [
+    {
+      "fov_deg": 45.0,
+      "id": "tof0",
+      "max_range_m": 4.0,
+      "model": "vl53l8cx",
+      "pose": {
+        "pitch": 0.0,
+        "x": 0.085,
+        "y": 0.0,
+        "yaw": 0.0,
+        "z": 0.06
+      },
+      "rate_hz": 15.0,
+      "resolution": 8
+    },
+    {
+      "fov_deg": 45.0,
+      "id": "tof1",
+      "max_range_m": 4.0,
+      "model": "vl53l8cx",
+      "pose": {
+        "pitch": 0.0,
+        "x": 0.06010407640085655,
+        "y": 0.06010407640085655,
+        "yaw": 0.7853981633974483,
+        "z": 0.06
+      },
+      "rate_hz": 15.0,
+      "resolution": 8
+    },
+    {
+      "fov_deg": 45.0,
+      "id": "tof2",
+      "max_range_m": 4.0,
+      "model": "vl53l8cx",
+      "pose": {
+        "pitch": 0.0,
+        "x": 5.204748896376251e-18,
+        "y": 0.085,
+        "yaw": 1.5707963267948966,
+        "z": 0.06
+      },
+      "rate_hz": 15.0,
+      "resolution": 8
+    },
+    {
+      "fov_deg": 45.0,
+      "id": "tof3",
+      "max_range_m": 4.0,
+      "model": "vl53l8cx",
+      "pose": {
+        "pitch": 0.0,
+        "x": -0.06010407640085654,
+        "y": 0.06010407640085655,
+        "yaw": 2.356194490192345,
+        "z": 0.06
+      },
+      "rate_hz": 15.0,
+      "resolution": 8
+    },
+    {
+      "fov_deg": 45.0,
+      "id": "tof4",
+      "max_range_m": 4.0,
+      "model": "vl53l8cx",
+      "pose": {
+        "pitch": 0.0,
+        "x": -0.085,
+        "y": 1.0409497792752502e-17,
+        "yaw": 3.141592653589793,
+        "z": 0.06
+      },
+      "rate_hz": 15.0,
+      "resolution": 8
+    },
+    {
+      "fov_deg": 45.0,
+      "id": "tof5",
+      "max_range_m": 4.0,
+      "model": "vl53l8cx",
+      "pose": {
+        "pitch": 0.0,
+        "x": -0.060104076400856556,
+        "y": -0.06010407640085654,
+        "yaw": 3.9269908169872414,
+        "z": 0.06
+      },
+      "rate_hz": 15.0,
+      "resolution": 8
+    },
+    {
+      "fov_deg": 45.0,
+      "id": "tof6",
+      "max_range_m": 4.0,
+      "model": "vl53l8cx",
+      "pose": {
+        "pitch": 0.0,
+        "x": -1.5614246689128753e-17,
+        "y": -0.085,
+        "yaw": 4.71238898038469,
+        "z": 0.06
+      },
+      "rate_hz": 15.0,
+      "resolution": 8
+    },
+    {
+      "fov_deg": 45.0,
+      "id": "tof7",
+      "max_range_m": 4.0,
+      "model": "vl53l8cx",
+      "pose": {
+        "pitch": 0.0,
+        "x": 0.06010407640085653,
+        "y": -0.060104076400856556,
+        "yaw": 5.497787143782138,
+        "z": 0.06
+      },
+      "rate_hz": 15.0,
+      "resolution": 8
+    }
+  ],
+  "wheels": [
+    {
+      "encoder_ticks_per_rev": 4096,
+      "max_rpm": 210.0,
+      "model": "ddsm210",
+      "radius_m": 0.0325,
+      "rated_torque_nm": 0.25,
+      "stall_torque_nm": 0.85,
+      "x": 0.06,
+      "y": 0.08
+    },
+    {
+      "encoder_ticks_per_rev": 4096,
+      "max_rpm": 210.0,
+      "model": "ddsm210",
+      "radius_m": 0.0325,
+      "rated_torque_nm": 0.25,
+      "stall_torque_nm": 0.85,
+      "x": 0.06,
+      "y": -0.08
+    },
+    {
+      "encoder_ticks_per_rev": 4096,
+      "max_rpm": 210.0,
+      "model": "ddsm210",
+      "radius_m": 0.0325,
+      "rated_torque_nm": 0.25,
+      "stall_torque_nm": 0.85,
+      "x": -0.06,
+      "y": 0.08
+    },
+    {
+      "encoder_ticks_per_rev": 4096,
+      "max_rpm": 210.0,
+      "model": "ddsm210",
+      "radius_m": 0.0325,
+      "rated_torque_nm": 0.25,
+      "stall_torque_nm": 0.85,
+      "x": -0.06,
+      "y": -0.08
+    }
+  ]
+}

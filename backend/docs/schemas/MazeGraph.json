@@ -1,0 +1,651 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "DangerousZone": {
+      "properties": {
+        "entrance": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "tiles": {
+          "items": {
+            "$ref": "#/definitions/TileXY"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "entrance",
+        "tiles"
+      ],
+      "type": "object"
+    },
+    "Dir": {
+      "description": "Compass side of a tile. North is +y.",
+      "enum": [
+        "north",
+        "east",
+        "south",
+        "west"
+      ],
+      "type": "string"
+    },
+    "GridSize": {
+      "properties": {
+        "h": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "w": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "h",
+        "w"
+      ],
+      "type": "object"
+    },
+    "MazeHeader": {
+      "properties": {
+        "generator_version": {
+          "type": "string"
+        },
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rules_profile": {
+          "type": "string"
+        },
+        "seed": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "tile_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "tolerance_frac": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "generator_version",
+        "rules_profile",
+        "seed",
+        "tile_m",
+        "tolerance_frac"
+      ],
+      "type": "object"
+    },
+    "Obstacle": {
+      "properties": {
+        "center": {
+          "$ref": "#/definitions/Vec2"
+        },
+        "height_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "id": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "radius_m": {
+          "description": "Footprint as a circle; enough for kinematic collision.",
+          "format": "double",
+          "type": "number"
+        },
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        }
+      },
+      "required": [
+        "center",
+        "height_m",
+        "id",
+        "radius_m",
+        "tile"
+      ],
+      "type": "object"
+    },
+    "RingColor": {
+      "enum": [
+        "black",
+        "red",
+        "yellow",
+        "green",
+        "blue"
+      ],
+      "type": "string"
+    },
+    "Tile": {
+      "properties": {
+        "at": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "class": {
+          "$ref": "#/definitions/TileClass"
+        },
+        "features": {
+          "items": {
+            "$ref": "#/definitions/TileFeature"
+          },
+          "type": "array"
+        },
+        "height_ref": {
+          "description": "Floor height of the tile's low edge, meters.",
+          "format": "double",
+          "type": "number"
+        },
+        "in_dz": {
+          "type": "boolean"
+        },
+        "kind": {
+          "$ref": "#/definitions/TileKind"
+        }
+      },
+      "required": [
+        "at",
+        "class",
+        "features",
+        "height_ref",
+        "in_dz",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "TileClass": {
+      "description": "Linear tiles touch a wall chain connected to the perimeter; floating ones do not.",
+      "enum": [
+        "linear",
+        "floating"
+      ],
+      "type": "string"
+    },
+    "TileFeature": {
+      "oneOf": [
+        {
+          "description": "Straight ramp rising toward `up_dir`, ending `rise_m` higher.",
+          "properties": {
+            "angle_deg": {
+              "format": "double",
+              "type": "number"
+            },
+            "rise_m": {
+              "format": "double",
+              "type": "number"
+            },
+            "type": {
+              "enum": [
+                "ramp"
+              ],
+              "type": "string"
+            },
+            "up_dir": {
+              "$ref": "#/definitions/Dir"
+            }
+          },
+          "required": [
+            "angle_deg",
+            "rise_m",
+            "type",
+            "up_dir"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Stairs rising toward `up_dir`.",
+          "properties": {
+            "step_m": {
+              "format": "double",
+              "type": "number"
+            },
+            "steps": {
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "tread_m": {
+              "format": "double",
+              "type": "number"
+            },
+            "type": {
+              "enum": [
+                "stairs"
+              ],
+              "type": "string"
+            },
+            "up_dir": {
+              "$ref": "#/definitions/Dir"
+            }
+          },
+          "required": [
+            "step_m",
+            "steps",
+            "tread_m",
+            "type",
+            "up_dir"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Speed bump across the tile, perpendicular to `across`.",
+          "properties": {
+            "across": {
+              "$ref": "#/definitions/Dir"
+            },
+            "height_m": {
+              "format": "double",
+              "type": "number"
+            },
+            "type": {
+              "enum": [
+                "speed_bump"
+              ],
+              "type": "string"
+            },
+            "width_m": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          "required": [
+            "across",
+            "height_m",
+            "type",
+            "width_m"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "TileKind": {
+      "oneOf": [
+        {
+          "enum": [
+            "normal",
+            "start"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Hole: never entered, acts as a virtual wall.",
+          "enum": [
+            "black"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Checkpoint (reflective floor).",
+          "enum": [
+            "silver"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Puddle: robot must stop for `blue_stop_s`.",
+          "enum": [
+            "blue"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Entrance of the Dangerous Zone.",
+          "enum": [
+            "red"
+          ],
+          "type": "string"
+        }
+      ]
+    },
+    "TileXY": {
+      "description": "Grid cell address.",
+      "properties": {
+        "col": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "row": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "col",
+        "row"
+      ],
+      "type": "object"
+    },
+    "Vec2": {
+      "properties": {
+        "x": {
+          "format": "double",
+          "type": "number"
+        },
+        "y": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "type": "object"
+    },
+    "Vec3": {
+      "properties": {
+        "x": {
+          "format": "double",
+          "type": "number"
+        },
+        "y": {
+          "format": "double",
+          "type": "number"
+        },
+        "z": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "type": "object"
+    },
+    "Victim": {
+      "properties": {
+        "facing_yaw": {
+          "description": "Yaw of the wall's outward normal (the direction the victim faces).",
+          "format": "double",
+          "type": "number"
+        },
+        "id": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/definitions/VictimKind"
+        },
+        "pos": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Vec3"
+            }
+          ],
+          "description": "Center of the victim on the wall face, world meters."
+        },
+        "rotation": {
+          "description": "In-plane rotation of the printed target, radians.",
+          "format": "double",
+          "type": "number"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/VictimStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Ground-truth status (`None` for decoys)."
+        },
+        "tier": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/VictimTier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "wall_side": {
+          "$ref": "#/definitions/Dir"
+        }
+      },
+      "required": [
+        "facing_yaw",
+        "id",
+        "kind",
+        "pos",
+        "rotation",
+        "tile",
+        "wall_side"
+      ],
+      "type": "object"
+    },
+    "VictimKind": {
+      "oneOf": [
+        {
+          "description": "Emoji face: sad = harmed, neutral = stable, happy = unharmed.",
+          "properties": {
+            "status": {
+              "$ref": "#/definitions/VictimStatus"
+            },
+            "type": {
+              "enum": [
+                "smiley"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Five concentric rings, innermost first; the colour values sum to the status.",
+          "properties": {
+            "rings": {
+              "items": {
+                "$ref": "#/definitions/RingColor"
+              },
+              "maxItems": 5,
+              "minItems": 5,
+              "type": "array"
+            },
+            "type": {
+              "enum": [
+                "cognitive"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "rings",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Looks like a victim, is not one. Identifying it is a misidentification.",
+          "properties": {
+            "type": {
+              "enum": [
+                "decoy"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "VictimStatus": {
+      "enum": [
+        "harmed",
+        "stable",
+        "unharmed"
+      ],
+      "type": "string"
+    },
+    "VictimTier": {
+      "enum": [
+        "linear",
+        "floating"
+      ],
+      "type": "string"
+    },
+    "Wall": {
+      "description": "Wall segment in world meters. `edge` ties it back to the grid when it sits on one.",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/Vec2"
+        },
+        "b": {
+          "$ref": "#/definitions/Vec2"
+        },
+        "edge": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/WallEdge"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "height_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "z0": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "a",
+        "b",
+        "height_m",
+        "z0"
+      ],
+      "type": "object"
+    },
+    "WallEdge": {
+      "properties": {
+        "side": {
+          "$ref": "#/definitions/Dir"
+        },
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        }
+      },
+      "required": [
+        "side",
+        "tile"
+      ],
+      "type": "object"
+    },
+    "Zones": {
+      "properties": {
+        "checkpoints": {
+          "items": {
+            "$ref": "#/definitions/TileXY"
+          },
+          "type": "array"
+        },
+        "dangerous_zone": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DangerousZone"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "start": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "start_yaw": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "checkpoints",
+        "start",
+        "start_yaw"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "grid": {
+      "$ref": "#/definitions/GridSize"
+    },
+    "header": {
+      "$ref": "#/definitions/MazeHeader"
+    },
+    "obstacles": {
+      "items": {
+        "$ref": "#/definitions/Obstacle"
+      },
+      "type": "array"
+    },
+    "tiles": {
+      "description": "Row-major: index = row * w + col.",
+      "items": {
+        "$ref": "#/definitions/Tile"
+      },
+      "type": "array"
+    },
+    "victims": {
+      "items": {
+        "$ref": "#/definitions/Victim"
+      },
+      "type": "array"
+    },
+    "walls": {
+      "items": {
+        "$ref": "#/definitions/Wall"
+      },
+      "type": "array"
+    },
+    "zones": {
+      "$ref": "#/definitions/Zones"
+    }
+  },
+  "required": [
+    "grid",
+    "header",
+    "obstacles",
+    "tiles",
+    "victims",
+    "walls",
+    "zones"
+  ],
+  "title": "MazeGraph",
+  "type": "object"
+}

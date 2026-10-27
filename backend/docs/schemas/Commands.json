@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "VictimReport": {
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/VictimStatus"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "VictimStatus": {
+      "enum": [
+        "harmed",
+        "stable",
+        "unharmed"
+      ],
+      "type": "string"
+    }
+  },
+  "properties": {
+    "deploy_kits": {
+      "description": "Deploy this many kits this step (0 = none).",
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "end_run": {
+      "description": "Ask the sim to treat the run as finished (robot believes it is on start).",
+      "type": "boolean"
+    },
+    "id_light": {
+      "type": "boolean"
+    },
+    "note": {
+      "description": "Free text kept in the replay for debugging.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "report": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/VictimReport"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Report an identified victim: the controller's claim, scored by the sim."
+    },
+    "wheel_v": {
+      "description": "Target wheel surface speeds, m/s (FL, FR, RL, RR).",
+      "items": {
+        "format": "double",
+        "type": "number"
+      },
+      "maxItems": 4,
+      "minItems": 4,
+      "type": "array"
+    }
+  },
+  "required": [
+    "deploy_kits",
+    "end_run",
+    "id_light",
+    "wheel_v"
+  ],
+  "title": "Commands",
+  "type": "object"
+}

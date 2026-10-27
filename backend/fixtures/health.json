@@ -1,0 +1,25 @@
+{
+  "api_version": "0.1.0",
+  "ok": true,
+  "sim_capabilities": {
+    "muse": false,
+    "physics": "kinematic",
+    "replay_formats": [
+      "msgpack",
+      "json"
+    ],
+    "rng_modes": [
+      "trng",
+      "fixed"
+    ],
+    "sensors": [
+      "vl53l8cx",
+      "as7343",
+      "openmv_n6",
+      "imx5_tactical",
+      "bno055",
+      "raw_imu"
+    ]
+  },
+  "version": "0.1.0"
+}

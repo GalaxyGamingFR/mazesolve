@@ -1,0 +1,53 @@
+{
+  "header": {
+    "format_version": 1,
+    "run_id": "run_fixture_small",
+    "seed": 1,
+    "rng_mode": "fixed",
+    "robot_hash": "fixture-robot",
+    "maze_hash": "fixture-maze",
+    "controller_hash": "fixture-controller",
+    "error_profile_hash": "fixture-errors",
+    "rules_hash": "fixture-rules",
+    "applied_tolerance_frac": 0.0,
+    "physics_dt_s": 0.001,
+    "controller_dt_s": 0.01,
+    "frame_dt_s": 0.04,
+    "created_at": null,
+    "backend_version": "0.1.0"
+  },
+  "frames": [
+    {
+      "t": 0.0,
+      "pose": { "x": 0.14, "y": 0.14, "z": 0.0, "roll": 0.0, "pitch": 0.0, "yaw": 0.0 },
+      "wheels": [{ "cmd": 0.0, "actual": 0.0 }, { "cmd": 0.0, "actual": 0.0 }, { "cmd": 0.0, "actual": 0.0 }, { "cmd": 0.0, "actual": 0.0 }],
+      "imu": { "roll": 0.0, "pitch": 0.0, "yaw": 0.0, "gyro": [0.0, 0.0, 0.0], "accel": [0.0, 0.0, 9.81] },
+      "tof": [], "color": [], "cams": [], "id_light": false
+    },
+    {
+      "t": 0.04,
+      "pose": { "x": 0.142, "y": 0.14, "z": 0.0, "roll": 0.0, "pitch": 0.0, "yaw": 0.0 },
+      "wheels": [{ "cmd": 0.1, "actual": 0.05 }, { "cmd": 0.1, "actual": 0.05 }, { "cmd": 0.1, "actual": 0.05 }, { "cmd": 0.1, "actual": 0.05 }],
+      "imu": { "roll": 0.0, "pitch": 0.0, "yaw": 0.0, "gyro": [0.0, 0.0, 0.0], "accel": [0.5, 0.0, 9.81] },
+      "tof": [], "color": [], "cams": [], "id_light": false
+    },
+    {
+      "t": 0.08,
+      "pose": { "x": 0.146, "y": 0.14, "z": 0.0, "roll": 0.0, "pitch": 0.0, "yaw": 0.0 },
+      "wheels": [{ "cmd": 0.1, "actual": 0.1 }, { "cmd": 0.1, "actual": 0.1 }, { "cmd": 0.1, "actual": 0.1 }, { "cmd": 0.1, "actual": 0.1 }],
+      "imu": { "roll": 0.0, "pitch": 0.0, "yaw": 0.0, "gyro": [0.0, 0.0, 0.0], "accel": [0.0, 0.0, 9.81] },
+      "tof": [], "color": [], "cams": [], "id_light": true
+    }
+  ],
+  "events": [
+    { "t": 0.0, "type": "run_start" },
+    { "t": 0.0, "type": "tile_enter", "tile": { "col": 0, "row": 0 } },
+    { "t": 0.08, "type": "victim_identified", "victim_id": 0, "reported": "harmed", "correct": true, "points": 5 },
+    {
+      "t": 0.08,
+      "type": "run_end",
+      "reason": "stopped",
+      "score": { "victims": 5, "kits": 0, "checkpoints": 0, "ramps": 0, "stairs": 0, "speed_bumps": 0, "blue_tiles": 0, "reliability": 0, "exit_bonus": 0, "penalties": 0, "total": 5 }
+    }
+  ]
+}

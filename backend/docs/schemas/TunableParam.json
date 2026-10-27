@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "A parameter the tuner may change. `path` is `controller.<name>` for `@tunable` controller values or `error_profile.<section>.<field>` for robustness settings.",
+  "properties": {
+    "default": {
+      "format": "double",
+      "type": "number"
+    },
+    "description": {
+      "type": "string"
+    },
+    "max": {
+      "format": "double",
+      "type": "number"
+    },
+    "max_step": {
+      "description": "Largest change allowed in one iteration, absolute.",
+      "format": "double",
+      "type": "number"
+    },
+    "min": {
+      "format": "double",
+      "type": "number"
+    },
+    "path": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "default",
+    "description",
+    "max",
+    "max_step",
+    "min",
+    "path"
+  ],
+  "title": "TunableParam",
+  "type": "object"
+}

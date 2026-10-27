@@ -112,7 +112,7 @@ impl ErrorProfile {
                 class_confusion: 0.0,
                 ring_confusion: 0.0,
                 latency_ms: 0.0,
-                blur_omega: f64::MAX,
+                blur_omega: 1.0e6,
                 blur_recall: 1.0,
             },
             imu: ImuErrors {

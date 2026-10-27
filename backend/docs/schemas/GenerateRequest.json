@@ -1,0 +1,158 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "FeatureCounts": {
+      "description": "How many of each element to place. The generator places fewer when the grid cannot legally fit them and says so in `MazeValidation::issues` (warnings).",
+      "properties": {
+        "black": {
+          "default": 2,
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "blue": {
+          "default": 1,
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "cognitive_victims": {
+          "default": 3,
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "dangerous_zone": {
+          "default": true,
+          "type": "boolean"
+        },
+        "decoys": {
+          "default": 1,
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "floating_victim_share": {
+          "default": 0.3,
+          "description": "Target share of victims on floating walls (0..1).",
+          "format": "double",
+          "type": "number"
+        },
+        "loopiness": {
+          "default": 0.15,
+          "description": "Share of internal walls removed after the spanning tree (0 = perfect maze).",
+          "format": "double",
+          "type": "number"
+        },
+        "obstacles": {
+          "default": 1,
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "ramps": {
+          "default": 1,
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "silver": {
+          "default": 2,
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "smiley_victims": {
+          "default": 4,
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "speed_bumps": {
+          "default": 2,
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "stairs": {
+          "default": 0,
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "GridSize": {
+      "properties": {
+        "h": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "w": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "h",
+        "w"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "`POST /api/mazes/generate` request body.",
+  "properties": {
+    "features": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/FeatureCounts"
+        }
+      ],
+      "default": {
+        "black": 2,
+        "blue": 1,
+        "cognitive_victims": 3,
+        "dangerous_zone": true,
+        "decoys": 1,
+        "floating_victim_share": 0.3,
+        "loopiness": 0.15,
+        "obstacles": 1,
+        "ramps": 1,
+        "silver": 2,
+        "smiley_victims": 4,
+        "speed_bumps": 2,
+        "stairs": 0
+      }
+    },
+    "grid": {
+      "$ref": "#/definitions/GridSize"
+    },
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rules": {
+      "default": "rcj_maze_2027_draft",
+      "type": "string"
+    },
+    "seed": {
+      "description": "`None` = draw a fresh seed from OS entropy (the response carries it).",
+      "format": "uint64",
+      "minimum": 0.0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "grid"
+  ],
+  "title": "GenerateRequest",
+  "type": "object"
+}

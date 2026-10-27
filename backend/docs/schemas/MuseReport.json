@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Suggestion": {
+      "properties": {
+        "confidence": {
+          "description": "0..1.",
+          "format": "double",
+          "type": "number"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "expected_effect": {
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/definitions/SuggestionTarget"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "confidence",
+        "detail",
+        "expected_effect",
+        "target",
+        "title"
+      ],
+      "type": "object"
+    },
+    "SuggestionTarget": {
+      "oneOf": [
+        {
+          "properties": {
+            "new_value": {
+              "format": "double",
+              "type": "number"
+            },
+            "path": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "param"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "new_value",
+            "path",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "diff": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "code"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "diff",
+            "type"
+          ],
+          "type": "object"
+        }
+      ]
+    }
+  },
+  "description": "The JSON object Muse must return (schema-constrained).",
+  "properties": {
+    "diagnosis": {
+      "type": "string"
+    },
+    "evidence": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "root_cause": {
+      "type": "string"
+    },
+    "suggestions": {
+      "items": {
+        "$ref": "#/definitions/Suggestion"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "diagnosis",
+    "evidence",
+    "root_cause",
+    "suggestions"
+  ],
+  "title": "MuseReport",
+  "type": "object"
+}

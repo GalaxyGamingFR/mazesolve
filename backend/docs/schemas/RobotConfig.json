@@ -1,0 +1,343 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "BodySpec": {
+      "properties": {
+        "collision_radius_m": {
+          "description": "Radius used for wall collision (circle footprint).",
+          "format": "double",
+          "type": "number"
+        },
+        "height_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "length_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "mass_kg": {
+          "format": "double",
+          "type": "number"
+        },
+        "width_m": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "collision_radius_m",
+        "height_m",
+        "length_m",
+        "mass_kg",
+        "width_m"
+      ],
+      "type": "object"
+    },
+    "CameraModel": {
+      "enum": [
+        "openmv_n6"
+      ],
+      "type": "string"
+    },
+    "CameraMount": {
+      "properties": {
+        "hfov_deg": {
+          "format": "double",
+          "type": "number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "max_range_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "model": {
+          "$ref": "#/definitions/CameraModel"
+        },
+        "pose": {
+          "$ref": "#/definitions/MountPose"
+        },
+        "rate_hz": {
+          "format": "double",
+          "type": "number"
+        },
+        "vfov_deg": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "hfov_deg",
+        "id",
+        "max_range_m",
+        "model",
+        "pose",
+        "rate_hz",
+        "vfov_deg"
+      ],
+      "type": "object"
+    },
+    "ColorModel": {
+      "enum": [
+        "as7343"
+      ],
+      "type": "string"
+    },
+    "ColorMount": {
+      "properties": {
+        "gain": {
+          "format": "double",
+          "type": "number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "integration_ms": {
+          "format": "double",
+          "type": "number"
+        },
+        "model": {
+          "$ref": "#/definitions/ColorModel"
+        },
+        "pose": {
+          "$ref": "#/definitions/MountPose"
+        },
+        "rate_hz": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "gain",
+        "id",
+        "integration_ms",
+        "model",
+        "pose",
+        "rate_hz"
+      ],
+      "type": "object"
+    },
+    "ImuPreset": {
+      "oneOf": [
+        {
+          "description": "Inertial Sense IMX-5, tactical grade, near-zero drift.",
+          "enum": [
+            "imx5_tactical"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Bosch BNO055 fused output, moderate heading drift.",
+          "enum": [
+            "bno055"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "MPU-class raw accel/gyro; the controller must fuse.",
+          "enum": [
+            "raw_imu"
+          ],
+          "type": "string"
+        }
+      ]
+    },
+    "MountPose": {
+      "description": "Mount pose of a sensor relative to the robot center (robot frame: +x forward, +y left, +z up). `yaw`/`pitch` aim the sensor's optical axis.",
+      "properties": {
+        "pitch": {
+          "format": "double",
+          "type": "number"
+        },
+        "x": {
+          "format": "double",
+          "type": "number"
+        },
+        "y": {
+          "format": "double",
+          "type": "number"
+        },
+        "yaw": {
+          "format": "double",
+          "type": "number"
+        },
+        "z": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "pitch",
+        "x",
+        "y",
+        "yaw",
+        "z"
+      ],
+      "type": "object"
+    },
+    "TofModel": {
+      "enum": [
+        "vl53l8cx"
+      ],
+      "type": "string"
+    },
+    "TofMount": {
+      "properties": {
+        "fov_deg": {
+          "format": "double",
+          "type": "number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "max_range_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "model": {
+          "$ref": "#/definitions/TofModel"
+        },
+        "pose": {
+          "$ref": "#/definitions/MountPose"
+        },
+        "rate_hz": {
+          "format": "double",
+          "type": "number"
+        },
+        "resolution": {
+          "description": "4 (4x4) or 8 (8x8).",
+          "format": "uint8",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "fov_deg",
+        "id",
+        "max_range_m",
+        "model",
+        "pose",
+        "rate_hz",
+        "resolution"
+      ],
+      "type": "object"
+    },
+    "WheelModel": {
+      "enum": [
+        "ddsm210"
+      ],
+      "type": "string"
+    },
+    "WheelSpec": {
+      "properties": {
+        "encoder_ticks_per_rev": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "max_rpm": {
+          "format": "double",
+          "type": "number"
+        },
+        "model": {
+          "$ref": "#/definitions/WheelModel"
+        },
+        "radius_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "rated_torque_nm": {
+          "format": "double",
+          "type": "number"
+        },
+        "stall_torque_nm": {
+          "format": "double",
+          "type": "number"
+        },
+        "x": {
+          "description": "Wheel center, robot frame.",
+          "format": "double",
+          "type": "number"
+        },
+        "y": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "encoder_ticks_per_rev",
+        "max_rpm",
+        "model",
+        "radius_m",
+        "rated_torque_nm",
+        "stall_torque_nm",
+        "x",
+        "y"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "body": {
+      "$ref": "#/definitions/BodySpec"
+    },
+    "cameras": {
+      "items": {
+        "$ref": "#/definitions/CameraMount"
+      },
+      "type": "array"
+    },
+    "color": {
+      "items": {
+        "$ref": "#/definitions/ColorMount"
+      },
+      "type": "array"
+    },
+    "id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "imu": {
+      "$ref": "#/definitions/ImuPreset"
+    },
+    "kits": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "name": {
+      "type": "string"
+    },
+    "tof": {
+      "items": {
+        "$ref": "#/definitions/TofMount"
+      },
+      "type": "array"
+    },
+    "wheels": {
+      "description": "Order: front-left, front-right, rear-left, rear-right.",
+      "items": {
+        "$ref": "#/definitions/WheelSpec"
+      },
+      "maxItems": 4,
+      "minItems": 4,
+      "type": "array"
+    }
+  },
+  "required": [
+    "body",
+    "cameras",
+    "color",
+    "imu",
+    "kits",
+    "name",
+    "tof",
+    "wheels"
+  ],
+  "title": "RobotConfig",
+  "type": "object"
+}

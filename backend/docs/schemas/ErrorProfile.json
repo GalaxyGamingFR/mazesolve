@@ -1,0 +1,249 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "CameraErrors": {
+      "properties": {
+        "blur_omega": {
+          "description": "Above this yaw rate (rad/s) recall drops to `blur_recall`.",
+          "format": "double",
+          "type": "number"
+        },
+        "blur_recall": {
+          "format": "double",
+          "type": "number"
+        },
+        "class_confusion": {
+          "description": "Probability a smiley's status is misread.",
+          "format": "double",
+          "type": "number"
+        },
+        "decoy_confusion": {
+          "description": "Probability a decoy is reported as a victim.",
+          "format": "double",
+          "type": "number"
+        },
+        "false_positive": {
+          "description": "Probability per frame of a false positive when nothing is in view.",
+          "format": "double",
+          "type": "number"
+        },
+        "latency_ms": {
+          "format": "double",
+          "type": "number"
+        },
+        "recall": {
+          "format": "double",
+          "type": "number"
+        },
+        "ring_confusion": {
+          "description": "Probability per ring that its colour is misread.",
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "blur_omega",
+        "blur_recall",
+        "class_confusion",
+        "decoy_confusion",
+        "false_positive",
+        "latency_ms",
+        "recall",
+        "ring_confusion"
+      ],
+      "type": "object"
+    },
+    "ColorErrors": {
+      "properties": {
+        "ambient_jitter": {
+          "description": "Multiplier range on ambient light, applied per run: [1-x, 1+x].",
+          "format": "double",
+          "type": "number"
+        },
+        "flicker": {
+          "type": "boolean"
+        },
+        "sigma_frac": {
+          "description": "Per-channel noise as a fraction of the reading.",
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "ambient_jitter",
+        "flicker",
+        "sigma_frac"
+      ],
+      "type": "object"
+    },
+    "FieldErrors": {
+      "properties": {
+        "tolerance_use": {
+          "description": "Fraction of the rules' tolerance actually used (1.0 = the full ±10 %).",
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "tolerance_use"
+      ],
+      "type": "object"
+    },
+    "ImuErrors": {
+      "properties": {
+        "heading_walk_deg_rthr": {
+          "description": "Heading random walk, degrees per sqrt(hour), on top of the preset.",
+          "format": "double",
+          "type": "number"
+        },
+        "mag_event_deg": {
+          "format": "double",
+          "type": "number"
+        },
+        "mag_event_rate": {
+          "description": "Probability per second of a magnetic-interference event.",
+          "format": "double",
+          "type": "number"
+        },
+        "noise_scale": {
+          "description": "Scale on the preset's datasheet noise (1.0 = datasheet-typical, 0 = perfect).",
+          "format": "double",
+          "type": "number"
+        },
+        "vibration_deg": {
+          "description": "Heading spike (deg) on bumps, stairs and collisions.",
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "heading_walk_deg_rthr",
+        "mag_event_deg",
+        "mag_event_rate",
+        "noise_scale",
+        "vibration_deg"
+      ],
+      "type": "object"
+    },
+    "TofErrors": {
+      "properties": {
+        "blind": {
+          "description": "Probability per frame a whole sensor is blinded by a light flash.",
+          "format": "double",
+          "type": "number"
+        },
+        "crosstalk": {
+          "description": "Probability per frame of a close-range ghost/crosstalk reading.",
+          "format": "double",
+          "type": "number"
+        },
+        "dropout": {
+          "description": "Probability a zone reports no target.",
+          "format": "double",
+          "type": "number"
+        },
+        "sigma_base_mm": {
+          "format": "double",
+          "type": "number"
+        },
+        "sigma_per_m_mm": {
+          "description": "Extra sigma per meter of range.",
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "blind",
+        "crosstalk",
+        "dropout",
+        "sigma_base_mm",
+        "sigma_per_m_mm"
+      ],
+      "type": "object"
+    },
+    "WheelErrors": {
+      "properties": {
+        "collision_yaw_kick": {
+          "description": "Heading kick (rad) on a wall collision.",
+          "format": "double",
+          "type": "number"
+        },
+        "deadband_mps": {
+          "description": "Commanded speeds below this (m/s) produce no motion.",
+          "format": "double",
+          "type": "number"
+        },
+        "max_accel_mps2": {
+          "format": "double",
+          "type": "number"
+        },
+        "slip_blue": {
+          "format": "double",
+          "type": "number"
+        },
+        "slip_normal": {
+          "description": "Slip fraction by surface.",
+          "format": "double",
+          "type": "number"
+        },
+        "slip_ramp": {
+          "format": "double",
+          "type": "number"
+        },
+        "speed_sigma_frac": {
+          "description": "Random per-wheel speed error, fraction.",
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "collision_yaw_kick",
+        "deadband_mps",
+        "max_accel_mps2",
+        "slip_blue",
+        "slip_normal",
+        "slip_ramp",
+        "speed_sigma_frac"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "camera": {
+      "$ref": "#/definitions/CameraErrors"
+    },
+    "color": {
+      "$ref": "#/definitions/ColorErrors"
+    },
+    "field": {
+      "$ref": "#/definitions/FieldErrors"
+    },
+    "id": {
+      "type": "string"
+    },
+    "imu": {
+      "$ref": "#/definitions/ImuErrors"
+    },
+    "name": {
+      "type": "string"
+    },
+    "tof": {
+      "$ref": "#/definitions/TofErrors"
+    },
+    "wheel": {
+      "$ref": "#/definitions/WheelErrors"
+    }
+  },
+  "required": [
+    "camera",
+    "color",
+    "field",
+    "id",
+    "imu",
+    "name",
+    "tof",
+    "wheel"
+  ],
+  "title": "ErrorProfile",
+  "type": "object"
+}

@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "RngMode": {
+      "oneOf": [
+        {
+          "description": "Fresh OS-entropy seed per run.",
+          "enum": [
+            "trng"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Caller-supplied seed: identical maze instance and noise realization.",
+          "enum": [
+            "fixed"
+          ],
+          "type": "string"
+        }
+      ]
+    },
+    "RngSpec": {
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/RngMode"
+        },
+        "seed": {
+          "description": "Required for `fixed`, ignored for `trng`.",
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "`POST /api/runs` request body.",
+  "properties": {
+    "controller_id": {
+      "type": "string"
+    },
+    "error_profile_id": {
+      "description": "Preset id (`clean`, `realistic`, `chaos`) or a stored custom profile id.",
+      "type": "string"
+    },
+    "lop_enabled": {
+      "default": true,
+      "type": "boolean"
+    },
+    "max_duration_s": {
+      "format": "double",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "maze_id": {
+      "type": "string"
+    },
+    "params": {
+      "additionalProperties": {
+        "format": "double",
+        "type": "number"
+      },
+      "default": {},
+      "description": "Controller tunable overrides, `name -> value`.",
+      "type": "object"
+    },
+    "rng": {
+      "$ref": "#/definitions/RngSpec"
+    },
+    "robot_id": {
+      "type": "string"
+    },
+    "speed": {
+      "description": "Live playback speed multiplier; 0 = as fast as possible (headless).",
+      "format": "double",
+      "type": "number"
+    }
+  },
+  "required": [
+    "controller_id",
+    "error_profile_id",
+    "maze_id",
+    "rng",
+    "robot_id",
+    "speed"
+  ],
+  "title": "CreateRun",
+  "type": "object"
+}

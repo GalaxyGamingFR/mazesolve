@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ScoreBreakdown": {
+      "properties": {
+        "blue_tiles": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "checkpoints": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "exit_bonus": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "kits": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "penalties": {
+          "description": "Misidentifications, negative.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "ramps": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "reliability": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "speed_bumps": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "stairs": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Never below 0 (5.6.14).",
+          "format": "int32",
+          "type": "integer"
+        },
+        "victims": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "blue_tiles",
+        "checkpoints",
+        "exit_bonus",
+        "kits",
+        "penalties",
+        "ramps",
+        "reliability",
+        "speed_bumps",
+        "stairs",
+        "total",
+        "victims"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "collisions": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "coverage": {
+      "description": "tiles_visited / tiles_reachable.",
+      "format": "double",
+      "type": "number"
+    },
+    "decoy_false_positives": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "distance_m": {
+      "format": "double",
+      "type": "number"
+    },
+    "duration_s": {
+      "format": "double",
+      "type": "number"
+    },
+    "exited": {
+      "type": "boolean"
+    },
+    "kits_used": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "misidentifications": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "realtime_factor": {
+      "description": "Sim seconds per wall-clock second (headless speed), if measured.",
+      "format": "double",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "restarts": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "score": {
+      "$ref": "#/definitions/ScoreBreakdown"
+    },
+    "tiles_reachable": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "tiles_visited": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "victims_identified": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "victims_total": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "collisions",
+    "coverage",
+    "decoy_false_positives",
+    "distance_m",
+    "duration_s",
+    "exited",
+    "kits_used",
+    "misidentifications",
+    "restarts",
+    "score",
+    "tiles_reachable",
+    "tiles_visited",
+    "victims_identified",
+    "victims_total"
+  ],
+  "title": "Metrics",
+  "type": "object"
+}

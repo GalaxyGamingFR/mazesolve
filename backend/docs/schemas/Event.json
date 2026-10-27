@@ -1,0 +1,530 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "EndReason": {
+      "enum": [
+        "time_up",
+        "exited",
+        "stopped",
+        "controller_fault"
+      ],
+      "type": "string"
+    },
+    "ScoreBreakdown": {
+      "properties": {
+        "blue_tiles": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "checkpoints": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "exit_bonus": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "kits": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "penalties": {
+          "description": "Misidentifications, negative.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "ramps": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "reliability": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "speed_bumps": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "stairs": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Never below 0 (5.6.14).",
+          "format": "int32",
+          "type": "integer"
+        },
+        "victims": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "blue_tiles",
+        "checkpoints",
+        "exit_bonus",
+        "kits",
+        "penalties",
+        "ramps",
+        "reliability",
+        "speed_bumps",
+        "stairs",
+        "total",
+        "victims"
+      ],
+      "type": "object"
+    },
+    "TileXY": {
+      "description": "Grid cell address.",
+      "properties": {
+        "col": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "row": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "col",
+        "row"
+      ],
+      "type": "object"
+    },
+    "VictimStatus": {
+      "enum": [
+        "harmed",
+        "stable",
+        "unharmed"
+      ],
+      "type": "string"
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "type": {
+          "enum": [
+            "run_start"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "type": {
+          "enum": [
+            "tile_enter"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "tile",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "type": {
+          "enum": [
+            "tile_exit"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "tile",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "type": {
+          "enum": [
+            "collision"
+          ],
+          "type": "string"
+        },
+        "x": {
+          "format": "double",
+          "type": "number"
+        },
+        "y": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "type",
+        "x",
+        "y"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "type": {
+          "enum": [
+            "checkpoint"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "tile",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "type": {
+          "enum": [
+            "blue_stop"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "ok",
+        "tile",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "correct": {
+          "type": "boolean"
+        },
+        "points": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "reported": {
+          "$ref": "#/definitions/VictimStatus"
+        },
+        "type": {
+          "enum": [
+            "victim_identified"
+          ],
+          "type": "string"
+        },
+        "victim_id": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "correct",
+        "points",
+        "reported",
+        "type",
+        "victim_id"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "type": {
+          "enum": [
+            "victim_missed"
+          ],
+          "type": "string"
+        },
+        "victim_id": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "victim_id"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "reported": {
+          "$ref": "#/definitions/VictimStatus"
+        },
+        "type": {
+          "enum": [
+            "misidentification"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "reported",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "type": {
+          "enum": [
+            "decoy_false_positive"
+          ],
+          "type": "string"
+        },
+        "victim_id": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type",
+        "victim_id"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "count": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "points": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "type": {
+          "enum": [
+            "kit_deployed"
+          ],
+          "type": "string"
+        },
+        "victim_id": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "count",
+        "points",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "points": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "type": {
+          "enum": [
+            "ramp_traversed"
+          ],
+          "type": "string"
+        },
+        "up": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "points",
+        "tile",
+        "type",
+        "up"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "points": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "type": {
+          "enum": [
+            "stairs_traversed"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "points",
+        "tile",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "points": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "type": {
+          "enum": [
+            "speed_bump_traversed"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "points",
+        "tile",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "type": {
+          "enum": [
+            "entered_black"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "tile",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "restarts": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "to": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "type": {
+          "enum": [
+            "lop_restart"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "restarts",
+        "to",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "controller_error"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "note"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "text",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "reason": {
+          "$ref": "#/definitions/EndReason"
+        },
+        "score": {
+          "$ref": "#/definitions/ScoreBreakdown"
+        },
+        "type": {
+          "enum": [
+            "run_end"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason",
+        "score",
+        "type"
+      ],
+      "type": "object"
+    }
+  ],
+  "properties": {
+    "t": {
+      "format": "double",
+      "type": "number"
+    }
+  },
+  "required": [
+    "t"
+  ],
+  "title": "Event",
+  "type": "object"
+}
