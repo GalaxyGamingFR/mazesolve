@@ -1,6 +1,15 @@
 [package]
 name = "mm-controller"
-version = "0.1.0"
-edition = "2024"
+description = "Sandboxed Rhai controller host plus built-in reference controllers."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
 
 [dependencies]
+mm-core.workspace = true
+rhai.workspace = true
+serde.workspace = true
+schemars.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

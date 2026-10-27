@@ -31,4 +31,4 @@ tower = { version = "0.4", features = ["util"] }
 tower-http = { version = "0.5", features = ["cors", "trace"] }
 http-body-util = "0.1"
 
-rhai = { version = "1", features = ["sync", "serde", "no_time"] }
+rhai = { version = "~1.27", features = ["sync", "serde", "no_time"] }
