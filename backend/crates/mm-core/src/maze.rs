@@ -219,3 +219,72 @@ impl MazeGraph {
         })
     }
 }
+
+/// `POST /api/mazes/generate` request body.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct GenerateRequest {
+    /// `None` = draw a fresh seed from OS entropy (the response carries it).
+    pub seed: Option<u64>,
+    pub grid: GridSize,
+    #[serde(default = "default_rules")]
+    pub rules: String,
+    #[serde(default)]
+    pub features: FeatureCounts,
+    pub name: Option<String>,
+}
+
+fn default_rules() -> String {
+    "rcj_maze_2027_draft".into()
+}
+
+/// How many of each element to place. The generator places fewer when the grid
+/// cannot legally fit them and says so in `MazeValidation::issues` (warnings).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+#[serde(default)]
+pub struct FeatureCounts {
+    pub black: u32,
+    pub silver: u32,
+    pub blue: u32,
+    pub ramps: u32,
+    pub stairs: u32,
+    pub speed_bumps: u32,
+    pub obstacles: u32,
+    pub smiley_victims: u32,
+    pub cognitive_victims: u32,
+    pub decoys: u32,
+    pub dangerous_zone: bool,
+    /// Share of internal walls removed after the spanning tree (0 = perfect maze).
+    pub loopiness: f64,
+    /// Target share of victims on floating walls (0..1).
+    pub floating_victim_share: f64,
+}
+
+impl Default for FeatureCounts {
+    fn default() -> Self {
+        FeatureCounts {
+            black: 2,
+            silver: 2,
+            blue: 1,
+            ramps: 1,
+            stairs: 0,
+            speed_bumps: 2,
+            obstacles: 1,
+            smiley_victims: 4,
+            cognitive_victims: 3,
+            decoys: 1,
+            dangerous_zone: true,
+            loopiness: 0.15,
+            floating_victim_share: 0.3,
+        }
+    }
+}
+
+/// `POST /api/mazes/validate` response.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct MazeValidation {
+    pub ok: bool,
+    pub issues: Vec<crate::ConfigIssue>,
+    pub reachable_tiles: u32,
+    /// Tiles that are not black.
+    pub enterable_tiles: u32,
+}
