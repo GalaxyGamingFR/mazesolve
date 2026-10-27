@@ -24,6 +24,7 @@ fn fixtures_deserialize_into_core_types() {
     parse::<ErrorProfile>("error_example.json");
     parse::<RulesProfile>("rules_rcj_maze_2027_draft.json");
     parse::<MazeGraph>("maze_small.json");
+    parse::<MazeGraph>("maze_generated.json");
     parse::<Replay>("replay_small.json");
     parse::<Value>("health.json");
     parse::<Value>("spec.json");

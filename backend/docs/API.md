@@ -1,4 +1,4 @@
-# MazeMuse API v0.1.0
+# MazeMuse API v0.2.0
 
 Contract between the Rust backend (`backend/`) and the React frontend. The backend lead owns
 this file. Frontend changes are proposed in [`API_CHANGES_PROPOSED.md`](API_CHANGES_PROPOSED.md).
@@ -49,14 +49,14 @@ Schema links are relative to this file.
 | GET | `/api/health` | none | health object | live |
 | GET | `/api/spec` | none | spec object | live |
 | POST | `/api/robots/validate` | [RobotConfig](schemas/RobotConfig.json) | `{valid, issues}` | live |
-| POST | `/api/robots` | RobotConfig | RobotConfig with `id` | planned M2 |
-| GET | `/api/robots` | none | `RobotConfig[]` | planned M2 |
-| GET | `/api/robots/:id` | none | RobotConfig | planned M2 |
-| POST | `/api/mazes/generate` | [GenerateRequest](schemas/GenerateRequest.json) | [MazeGraph](schemas/MazeGraph.json) | planned M2 |
-| POST | `/api/mazes/validate` | MazeGraph | [MazeValidation](schemas/MazeValidation.json) | planned M2 |
-| GET | `/api/mazes` | none | `MazeGraph[]` (headers only needed: `header`, `grid`) | planned M2 |
-| GET | `/api/mazes/:id` | none | MazeGraph | planned M2 |
-| PUT | `/api/mazes/:id` | MazeGraph | MazeGraph | planned M2 |
+| POST | `/api/robots` | RobotConfig (with `id` = update, without = create) | RobotConfig with `id` | live |
+| GET | `/api/robots` | none | `[{id, name, updated_at}]` | live |
+| GET | `/api/robots/:id` | none | RobotConfig | live |
+| POST | `/api/mazes/generate` | [GenerateRequest](schemas/GenerateRequest.json) | `{maze, warnings, ascii}` | live |
+| POST | `/api/mazes/validate` | [MazeGraph](schemas/MazeGraph.json) | [MazeValidation](schemas/MazeValidation.json) | live |
+| GET | `/api/mazes` | none | `[{id, name, seed, w, h, updated_at}]` newest first | live |
+| GET | `/api/mazes/:id` | none | MazeGraph | live |
+| PUT | `/api/mazes/:id` | MazeGraph | `{maze, validation}` | live |
 | GET | `/api/controllers/conversion-prompt` | none | `text/markdown` | planned M4 |
 | POST | `/api/controllers/validate` | `{code, lang:"rhai"}` | `{ok, errors, tunables, dry_run_trace?}` | planned M4 |
 | POST | `/api/controllers` | `{name, code}` | `{id, version}` | planned M4 |
@@ -90,7 +90,7 @@ Until an endpoint is built, a plain `GET` to its path returns 501 (WS paths incl
 
 ```json
 {
-  "ok": true, "version": "0.1.0", "api_version": "0.1.0",
+  "ok": true, "version": "0.1.0", "api_version": "0.2.0",
   "sim_capabilities": {
     "physics": "kinematic",
     "sensors": ["vl53l8cx","as7343","openmv_n6","imx5_tactical","bno055","raw_imu"],
@@ -109,7 +109,7 @@ Static catalog the UI builds its forms from. Example: [`fixtures/spec.json`](../
 
 ```json
 {
-  "api_version": "0.1.0",
+  "api_version": "0.2.0",
   "rules_profiles": [ "RulesProfile (schemas/RulesProfile.json)" ],
   "error_presets": [ "ErrorProfile x3: clean, realistic, chaos (schemas/ErrorProfile.json)" ],
   "reference_robot": "RobotConfig (schemas/RobotConfig.json)",
@@ -134,12 +134,34 @@ Body: `RobotConfig`. Response (always 200 for a well-formed body):
 `valid` is false when any issue has `severity: "error"`; warnings do not invalidate. Errors: `bad_request`.
 Reference robot: [`fixtures/robot_reference.json`](../fixtures/robot_reference.json).
 
-### Mazes (planned M2)
+### Robots (live)
 
-`POST /api/mazes/generate` takes `GenerateRequest` (`seed` null = fresh OS-entropy seed, echoed in `header.seed`)
-and returns a `MazeGraph`. Fewer features than requested may be placed; the generator then reports warnings via
-`POST /api/mazes/validate`. `PUT /api/mazes/:id` replaces a stored maze after validation (`validation_failed` on errors).
-Errors: `bad_request`, `validation_failed`, `not_found`. Example: [`fixtures/maze_small.json`](../fixtures/maze_small.json).
+- `POST /api/robots` body `RobotConfig`. No `id`: creates (`rob_` + 12 hex chars). With `id`: replaces that robot,
+  `not_found` (404) if it does not exist. Any `severity: "error"` issue gives `validation_failed` (422) with
+  `details` = the full issue array (same items as `/api/robots/validate`). Returns the stored `RobotConfig` with `id`.
+- `GET /api/robots` returns `[{ "id": "rob_reference", "name": "Reference RCJ robot", "updated_at": "2026-10-27T12:00:00Z" }]`
+  in creation order. `rob_reference` (the reference robot) always exists; it can be updated like any other.
+- `GET /api/robots/:id` returns the `RobotConfig`; `not_found` otherwise.
+
+### Mazes (live)
+
+Mazes are stored server-side (SQLite). Ids are `maz_` + 12 hex chars in `header.id`.
+
+- `POST /api/mazes/generate` body `GenerateRequest` (`seed` null = fresh OS-entropy seed below 2^53). The seed used is
+  always echoed in `maze.header.seed`; the same seed and request give an identical maze (apart from `header.id`).
+  `name` defaults to `"Maze WxH #seed"`. Response:
+  `{ "maze": MazeGraph, "warnings": ConfigIssue[], "ascii": "..." }`. `warnings` is non-empty when fewer features
+  than requested could be placed. Errors: `bad_request` (400: unknown `rules` id, grid out of range, impossible features).
+  Example: [`fixtures/maze_generate_response.json`](../fixtures/maze_generate_response.json) (8x8, seed 42; the maze alone is
+  [`fixtures/maze_generated.json`](../fixtures/maze_generated.json)).
+- `POST /api/mazes/validate` body `MazeGraph` (not stored). The server runs tile classification on a copy first, then
+  returns `MazeValidation` (`ok`, `issues`, `reachable_tiles`, `enterable_tiles`). Errors: `bad_request` if
+  `tiles.length != grid.w * grid.h`.
+- `GET /api/mazes` returns `[{ "id", "name", "seed", "w", "h", "updated_at" }]`, newest first.
+- `GET /api/mazes/:id` returns the stored `MazeGraph`; `not_found` otherwise.
+- `PUT /api/mazes/:id` body `MazeGraph` edited in Maze Studio. The server sets `header.id` from the path, classifies
+  tiles, validates, and stores the maze even when validation is not ok. Returns
+  `{ "maze": MazeGraph, "validation": MazeValidation }`. Errors: `not_found`, `bad_request` (tile count mismatch).
 
 ### Controllers (planned M4)
 
@@ -238,6 +260,7 @@ then bumps the version here, adds a Changelog line and updates the fixtures in t
 
 ## Changelog
 
+- **0.2.0** (2026-10-27): live: robot create/update/list/get (`rob_reference` seeded), maze generate (response is now `{maze, warnings, ascii}`), validate, list (summaries, not full graphs), get, put (response is `{maze, validation}`). `api_version` is 0.2.0. New fixtures `maze_generated.json`, `maze_generate_response.json`.
 - **0.1.0** (2026-10-27): initial draft. Live: health, spec, robot validation. Everything else registered and returning 501.
   Decisions: validation errors use HTTP 422; `event` WebSocket messages nest the `Event` under `event` to avoid clashing
   with `Event.type`; added error code `not_implemented`.

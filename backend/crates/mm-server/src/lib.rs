@@ -4,6 +4,7 @@ pub mod error;
 pub mod export;
 pub mod routes;
 pub mod state;
+pub mod store;
 
 use axum::http::{header, HeaderValue, Method};
 use axum::Router;

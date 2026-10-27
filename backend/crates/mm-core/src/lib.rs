@@ -28,7 +28,7 @@ pub use run::*;
 pub use tuner::*;
 
 /// Wire format version of every type in this crate. Bumped with `docs/API.md`.
-pub const API_VERSION: &str = "0.1.0";
+pub const API_VERSION: &str = "0.2.0";
 
 /// Seeds are kept below 2^53 so JavaScript clients can hold them as numbers.
 pub const SEED_MASK: u64 = (1u64 << 53) - 1;

@@ -16,6 +16,9 @@ path = "src/bin/mm_schemas.rs"
 
 [dependencies]
 mm-core.workspace = true
+mm-maze.workspace = true
+rusqlite.workspace = true
+getrandom.workspace = true
 axum.workspace = true
 tower-http.workspace = true
 tokio.workspace = true

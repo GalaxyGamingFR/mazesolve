@@ -43,7 +43,22 @@ pub fn generated_fixtures() -> Result<Vec<(&'static str, Value)>, serde_json::Er
         .find(|p| p.id == "realistic")
         .or_else(|| presets.first())
         .cloned();
+    let req = GenerateRequest {
+        seed: Some(42),
+        grid: GridSize { w: 8, h: 8 },
+        rules: rules.id.clone(),
+        features: FeatureCounts::default(),
+        name: Some("Example 8x8".into()),
+    };
+    let (mut maze, warnings) = routes::mazes::generate_maze(&req, 42, &rules)
+        .map_err(|e| serde::ser::Error::custom(e.to_string()))?;
+    maze.header.id = Some("maz_000000000042".into());
     Ok(vec![
+        ("maze_generated.json", serde_json::to_value(&maze)?),
+        (
+            "maze_generate_response.json",
+            routes::mazes::generate_response(&maze, &warnings),
+        ),
         ("health.json", routes::health::health_body(false)),
         ("spec.json", routes::spec::spec_body(&rules)),
         (

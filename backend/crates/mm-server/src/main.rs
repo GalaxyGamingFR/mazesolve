@@ -17,6 +17,6 @@ async fn main() -> anyhow::Result<()> {
         .await
         .with_context(|| format!("binding {addr}"))?;
     tracing::info!("mm-server listening on http://{addr}");
-    axum::serve(listener, app(AppState::default())).await?;
+    axum::serve(listener, app(AppState::open_default()?)).await?;
     Ok(())
 }
