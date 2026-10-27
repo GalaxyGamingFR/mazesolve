@@ -1,6 +1,23 @@
 [package]
 name = "mm-sim"
-version = "0.1.0"
-edition = "2024"
+description = "MazeMuse deterministic simulator: world, kinematics, sensors, scoring hooks."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
 
 [dependencies]
+mm-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+rmp-serde.workspace = true
+rand.workspace = true
+rand_chacha.workspace = true
+getrandom.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+
+[[bench]]
+name = "sim"
+harness = false
