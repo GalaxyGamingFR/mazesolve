@@ -1,0 +1,78 @@
+{
+  "id": "rcj_maze_2027_draft",
+  "name": "RoboCup Junior Rescue Maze 2027 (draft, 2026-09-08)",
+  "source_url": "https://rescue.rcj.cloud/events/2027/Rules/RCJRescueMaze2027-draft.pdf",
+  "field": {
+    "tile_m": 0.28,
+    "wall_height_min_m": 0.125,
+    "tolerance_frac": 0.10,
+    "tile_lip_max_m": 0.003,
+    "ramp_max_deg": 25.0,
+    "stairs_step_max_m": 0.02,
+    "stairs_tread_min_m": 0.15,
+    "stairs_incline_max_deg": 25.0,
+    "stairs_incline_max_deg_dz": 30.0,
+    "speed_bump_max_m": 0.01,
+    "speed_bump_max_m_dz": 0.02,
+    "obstacle_min_height_m": 0.15,
+    "obstacle_wall_clearance_m": 0.20,
+    "victim_diameter_m": 0.04,
+    "victim_height_m": 0.07,
+    "cognitive_ring_diameters_m": [0.01, 0.02, 0.03, 0.04, 0.05],
+    "cognitive_ring_values": [
+      { "color": "black", "value": -2 },
+      { "color": "red", "value": -1 },
+      { "color": "yellow", "value": 0 },
+      { "color": "green", "value": 1 },
+      { "color": "blue", "value": 2 }
+    ],
+    "blue_stop_s": 5.0,
+    "bridge_clearance_min_m": 0.25
+  },
+  "scoring": {
+    "victim_points": {
+      "linear_smiley": 5,
+      "linear_cognitive": 10,
+      "floating_smiley": 15,
+      "floating_cognitive": 30
+    },
+    "kit_points_by_count": [10, 30],
+    "kits_max": { "harmed": 2, "stable": 1, "unharmed": 0 },
+    "blue_tile": 30,
+    "blue_revisit_penalty": 10,
+    "reliability_per_svi": 10,
+    "reliability_per_srd": 10,
+    "reliability_per_sbv": 10,
+    "reliability_per_lop": 15,
+    "speed_bump_tile": 5,
+    "ramp": 10,
+    "stairs": 10,
+    "checkpoint": 10,
+    "exit_per_svi": 10,
+    "exit_per_sbv": 10,
+    "exit_per_ssn": 5,
+    "exit_per_srn": 5,
+    "misidentification": -5,
+    "identify_within_m": 0.15,
+    "notes": [
+      "5.6.2 has no separate Dangerous Zone tier; DZ victims score by linear/floating like any other.",
+      "5.6.13: each element is rewarded once.",
+      "5.6.14: total score never goes below 0; exit action off the start tile is a misidentification."
+    ]
+  },
+  "play": {
+    "run_duration_s": 480.0,
+    "lop_no_progress_s": 30.0,
+    "lop_min_displacement_m": 0.05,
+    "identification_light_s": 5.0,
+    "identification_blink_on_s": 0.5,
+    "identification_blink_off_s": 0.5,
+    "exit_light_s": 5.0,
+    "kit_max_distance_m": 0.15,
+    "kit_min_dimension_m": 0.015,
+    "stationary_mps": 0.005
+  },
+  "robot": {
+    "max_height_m": 0.25
+  }
+}
