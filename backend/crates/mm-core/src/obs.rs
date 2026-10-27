@@ -103,3 +103,20 @@ pub struct Commands {
 pub struct VictimReport {
     pub status: VictimStatus,
 }
+
+/// Static facts a controller gets once at `init`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct RobotInfo {
+    pub robot: crate::RobotConfig,
+    pub tile_m: f64,
+    pub controller_dt_s: f64,
+    /// Resolved `@tunable` values for this run.
+    pub params: std::collections::BTreeMap<String, f64>,
+}
+
+/// Implemented by the Rhai host (`mm-controller`) and by built-in Rust controllers.
+/// `step` errors end the run with `EndReason::ControllerFault`.
+pub trait Controller: Send {
+    fn init(&mut self, info: &RobotInfo) -> Result<(), String>;
+    fn step(&mut self, obs: &Observations) -> Result<Commands, String>;
+}
