@@ -1,0 +1,54 @@
+{
+  "config": {
+    "controller_id": "ctl_wall_follower",
+    "error_profile_id": "realistic",
+    "lop_enabled": true,
+    "max_duration_s": 10.0,
+    "maze_id": "maze_small",
+    "params": {},
+    "rng": {
+      "mode": "fixed",
+      "seed": 42
+    },
+    "robot_id": "rob_reference",
+    "speed": 0.0
+  },
+  "controller_id": "ctl_wall_follower",
+  "controller_version": 1,
+  "created_at": "2026-01-01T00:00:00Z",
+  "end_reason": "time_up",
+  "finished_at": "2026-01-01T00:00:00Z",
+  "id": "run_000000000001",
+  "maze_id": "maze_small",
+  "metrics": {
+    "collisions": 0,
+    "coverage": 0.09090909090909091,
+    "decoy_false_positives": 0,
+    "distance_m": 0.9703620452500651,
+    "duration_s": 10.0,
+    "exited": false,
+    "kits_used": 0,
+    "misidentifications": 0,
+    "realtime_factor": null,
+    "restarts": 0,
+    "score": {
+      "blue_tiles": 0,
+      "checkpoints": 0,
+      "exit_bonus": 0,
+      "kits": 0,
+      "penalties": 0,
+      "ramps": 0,
+      "reliability": 0,
+      "speed_bumps": 0,
+      "stairs": 0,
+      "total": 0,
+      "victims": 0
+    },
+    "tiles_reachable": 11,
+    "tiles_visited": 1,
+    "victims_identified": 0,
+    "victims_total": 2
+  },
+  "seed": 42,
+  "state": "finished"
+}

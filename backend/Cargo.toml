@@ -37,3 +37,5 @@ rusqlite = { version = "0.31", features = ["bundled"] }
 rhai = { version = "~1.27", features = ["sync", "serde", "no_time"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 async-trait = "0.1"
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+tokio-tungstenite = "0.24"

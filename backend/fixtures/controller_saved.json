@@ -1,0 +1,128 @@
+{
+  "id": "ctl_000000000001",
+  "tunables": [
+    {
+      "default": 0.15,
+      "description": "Forward wheel speed (m/s)",
+      "max": 0.3,
+      "max_step": 0.01,
+      "min": 0.05,
+      "path": "controller.speed"
+    },
+    {
+      "default": 0.2,
+      "description": "Max wheel speed while turning in place (m/s)",
+      "max": 0.4,
+      "max_step": 0.01,
+      "min": 0.05,
+      "path": "controller.turn_speed"
+    },
+    {
+      "default": 0.5,
+      "description": "Turn speed per radian of heading error (m/s per rad)",
+      "max": 2.0,
+      "max_step": 0.05,
+      "min": 0.1,
+      "path": "controller.turn_gain"
+    },
+    {
+      "default": 0.22,
+      "description": "Range above which a side or front is open (m)",
+      "max": 0.3,
+      "max_step": 0.01,
+      "min": 0.15,
+      "path": "controller.open_dist"
+    },
+    {
+      "default": 0.5,
+      "description": "Heading hold gain while driving straight (m/s per rad)",
+      "max": 2.0,
+      "max_step": 0.05,
+      "min": 0.0,
+      "path": "controller.heading_gain"
+    }
+  ],
+  "validation": {
+    "dry_run_trace": [
+      {
+        "commands": {
+          "deploy_kits": 0,
+          "end_run": false,
+          "id_light": false,
+          "note": null,
+          "report": null,
+          "wheel_v": [
+            0.2,
+            -0.2,
+            0.2,
+            -0.2
+          ]
+        },
+        "log": [],
+        "t": 0.0
+      },
+      {
+        "commands": {
+          "deploy_kits": 0,
+          "end_run": false,
+          "id_light": false,
+          "note": null,
+          "report": null,
+          "wheel_v": [
+            0.2,
+            -0.2,
+            0.2,
+            -0.2
+          ]
+        },
+        "log": [],
+        "t": 0.01
+      }
+    ],
+    "errors": [],
+    "ok": true,
+    "tunables": [
+      {
+        "default": 0.15,
+        "description": "Forward wheel speed (m/s)",
+        "max": 0.3,
+        "max_step": 0.01,
+        "min": 0.05,
+        "path": "controller.speed"
+      },
+      {
+        "default": 0.2,
+        "description": "Max wheel speed while turning in place (m/s)",
+        "max": 0.4,
+        "max_step": 0.01,
+        "min": 0.05,
+        "path": "controller.turn_speed"
+      },
+      {
+        "default": 0.5,
+        "description": "Turn speed per radian of heading error (m/s per rad)",
+        "max": 2.0,
+        "max_step": 0.05,
+        "min": 0.1,
+        "path": "controller.turn_gain"
+      },
+      {
+        "default": 0.22,
+        "description": "Range above which a side or front is open (m)",
+        "max": 0.3,
+        "max_step": 0.01,
+        "min": 0.15,
+        "path": "controller.open_dist"
+      },
+      {
+        "default": 0.5,
+        "description": "Heading hold gain while driving straight (m/s per rad)",
+        "max": 2.0,
+        "max_step": 0.05,
+        "min": 0.0,
+        "path": "controller.heading_gain"
+      }
+    ]
+  },
+  "version": 2
+}

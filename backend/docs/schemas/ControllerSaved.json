@@ -1,0 +1,223 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Commands": {
+      "properties": {
+        "deploy_kits": {
+          "description": "Deploy this many kits this step (0 = none).",
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "end_run": {
+          "description": "Ask the sim to treat the run as finished (robot believes it is on start).",
+          "type": "boolean"
+        },
+        "id_light": {
+          "type": "boolean"
+        },
+        "note": {
+          "description": "Free text kept in the replay for debugging.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "report": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/VictimReport"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Report an identified victim: the controller's claim, scored by the sim."
+        },
+        "wheel_v": {
+          "description": "Target wheel surface speeds, m/s (FL, FR, RL, RR).",
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": "array"
+        }
+      },
+      "required": [
+        "deploy_kits",
+        "end_run",
+        "id_light",
+        "wheel_v"
+      ],
+      "type": "object"
+    },
+    "ScriptError": {
+      "description": "A problem in a script, with a source position when Rhai knows one.",
+      "properties": {
+        "col": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "line": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "type": "object"
+    },
+    "TraceStep": {
+      "properties": {
+        "commands": {
+          "$ref": "#/definitions/Commands"
+        },
+        "log": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "t": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "commands",
+        "log",
+        "t"
+      ],
+      "type": "object"
+    },
+    "TunableParam": {
+      "description": "A parameter the tuner may change. `path` is `controller.<name>` for `@tunable` controller values or `error_profile.<section>.<field>` for robustness settings.",
+      "properties": {
+        "default": {
+          "format": "double",
+          "type": "number"
+        },
+        "description": {
+          "type": "string"
+        },
+        "max": {
+          "format": "double",
+          "type": "number"
+        },
+        "max_step": {
+          "description": "Largest change allowed in one iteration, absolute.",
+          "format": "double",
+          "type": "number"
+        },
+        "min": {
+          "format": "double",
+          "type": "number"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "default",
+        "description",
+        "max",
+        "max_step",
+        "min",
+        "path"
+      ],
+      "type": "object"
+    },
+    "ValidationOutcome": {
+      "properties": {
+        "dry_run_trace": {
+          "items": {
+            "$ref": "#/definitions/TraceStep"
+          },
+          "type": "array"
+        },
+        "errors": {
+          "items": {
+            "$ref": "#/definitions/ScriptError"
+          },
+          "type": "array"
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "tunables": {
+          "items": {
+            "$ref": "#/definitions/TunableParam"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "dry_run_trace",
+        "errors",
+        "ok",
+        "tunables"
+      ],
+      "type": "object"
+    },
+    "VictimReport": {
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/VictimStatus"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "VictimStatus": {
+      "enum": [
+        "harmed",
+        "stable",
+        "unharmed"
+      ],
+      "type": "string"
+    }
+  },
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "tunables": {
+      "items": {
+        "$ref": "#/definitions/TunableParam"
+      },
+      "type": "array"
+    },
+    "validation": {
+      "$ref": "#/definitions/ValidationOutcome"
+    },
+    "version": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "id",
+    "tunables",
+    "validation",
+    "version"
+  ],
+  "title": "ControllerSaved",
+  "type": "object"
+}

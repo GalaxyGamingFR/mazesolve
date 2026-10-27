@@ -5,12 +5,15 @@ use std::sync::Arc;
 
 use mm_core::RulesProfile;
 
+use crate::runner::RunRegistry;
 use crate::store::Store;
 
 #[derive(Clone)]
 pub struct AppState {
     pub rules: Arc<RulesProfile>,
     pub store: Arc<Store>,
+    /// Runs whose simulation thread is still alive.
+    pub runs: Arc<RunRegistry>,
 }
 
 impl AppState {
@@ -18,6 +21,7 @@ impl AppState {
         AppState {
             rules: Arc::new(rules),
             store: Arc::new(store),
+            runs: Arc::new(RunRegistry::default()),
         }
     }
 

@@ -1,0 +1,346 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "CreateRun": {
+      "description": "`POST /api/runs` request body.",
+      "properties": {
+        "controller_id": {
+          "type": "string"
+        },
+        "error_profile_id": {
+          "description": "Preset id (`clean`, `realistic`, `chaos`) or a stored custom profile id.",
+          "type": "string"
+        },
+        "lop_enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "max_duration_s": {
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "maze_id": {
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": {
+            "format": "double",
+            "type": "number"
+          },
+          "default": {},
+          "description": "Controller tunable overrides, `name -> value`.",
+          "type": "object"
+        },
+        "rng": {
+          "$ref": "#/definitions/RngSpec"
+        },
+        "robot_id": {
+          "type": "string"
+        },
+        "speed": {
+          "description": "Live playback speed multiplier; 0 = as fast as possible (headless).",
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "controller_id",
+        "error_profile_id",
+        "maze_id",
+        "rng",
+        "robot_id",
+        "speed"
+      ],
+      "type": "object"
+    },
+    "EndReason": {
+      "enum": [
+        "time_up",
+        "exited",
+        "stopped",
+        "controller_fault"
+      ],
+      "type": "string"
+    },
+    "Metrics": {
+      "properties": {
+        "collisions": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "coverage": {
+          "description": "tiles_visited / tiles_reachable.",
+          "format": "double",
+          "type": "number"
+        },
+        "decoy_false_positives": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "distance_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "duration_s": {
+          "format": "double",
+          "type": "number"
+        },
+        "exited": {
+          "type": "boolean"
+        },
+        "kits_used": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "misidentifications": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "realtime_factor": {
+          "description": "Sim seconds per wall-clock second (headless speed), if measured.",
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "restarts": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "score": {
+          "$ref": "#/definitions/ScoreBreakdown"
+        },
+        "tiles_reachable": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "tiles_visited": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "victims_identified": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "victims_total": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "collisions",
+        "coverage",
+        "decoy_false_positives",
+        "distance_m",
+        "duration_s",
+        "exited",
+        "kits_used",
+        "misidentifications",
+        "restarts",
+        "score",
+        "tiles_reachable",
+        "tiles_visited",
+        "victims_identified",
+        "victims_total"
+      ],
+      "type": "object"
+    },
+    "RngMode": {
+      "oneOf": [
+        {
+          "description": "Fresh OS-entropy seed per run.",
+          "enum": [
+            "trng"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Caller-supplied seed: identical maze instance and noise realization.",
+          "enum": [
+            "fixed"
+          ],
+          "type": "string"
+        }
+      ]
+    },
+    "RngSpec": {
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/RngMode"
+        },
+        "seed": {
+          "description": "Required for `fixed`, ignored for `trng`.",
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "type": "object"
+    },
+    "RunState": {
+      "enum": [
+        "queued",
+        "running",
+        "paused",
+        "finished",
+        "stopped",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "ScoreBreakdown": {
+      "properties": {
+        "blue_tiles": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "checkpoints": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "exit_bonus": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "kits": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "penalties": {
+          "description": "Misidentifications, negative.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "ramps": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "reliability": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "speed_bumps": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "stairs": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Never below 0 (5.6.14).",
+          "format": "int32",
+          "type": "integer"
+        },
+        "victims": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "blue_tiles",
+        "checkpoints",
+        "exit_bonus",
+        "kits",
+        "penalties",
+        "ramps",
+        "reliability",
+        "speed_bumps",
+        "stairs",
+        "total",
+        "victims"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "`GET /api/runs/:id` response, also the `run` field of the WS `hello` message.",
+  "properties": {
+    "config": {
+      "$ref": "#/definitions/CreateRun"
+    },
+    "controller_id": {
+      "type": "string"
+    },
+    "controller_version": {
+      "format": "uint32",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "end_reason": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/EndReason"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "finished_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "maze_id": {
+      "type": "string"
+    },
+    "metrics": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Metrics"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Present once the run has ended."
+    },
+    "seed": {
+      "description": "The resolved seed (never null, also for `trng` runs).",
+      "format": "uint64",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "state": {
+      "$ref": "#/definitions/RunState"
+    }
+  },
+  "required": [
+    "config",
+    "controller_id",
+    "controller_version",
+    "created_at",
+    "id",
+    "maze_id",
+    "seed",
+    "state"
+  ],
+  "title": "RunDetail",
+  "type": "object"
+}

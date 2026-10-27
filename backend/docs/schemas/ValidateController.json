@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "`POST /api/controllers/validate` body.",
+  "properties": {
+    "code": {
+      "type": "string"
+    },
+    "lang": {
+      "default": null,
+      "description": "Only `\"rhai\"` exists; accepted and ignored.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "robot_id": {
+      "default": null,
+      "description": "Robot whose sensors shape the dry run; defaults to the reference robot.",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "code"
+  ],
+  "title": "ValidateController",
+  "type": "object"
+}

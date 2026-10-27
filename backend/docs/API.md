@@ -1,4 +1,4 @@
-# MazeMuse API v0.2.0
+# MazeMuse API v0.3.0
 
 Contract between the Rust backend (`backend/`) and the React frontend. The backend lead owns
 this file. Frontend changes are proposed in [`API_CHANGES_PROPOSED.md`](API_CHANGES_PROPOSED.md).
@@ -9,7 +9,7 @@ Every wire type has a JSON Schema in [`schemas/`](schemas/) (regenerate with
 
 - Base URL: `http://localhost:8080` (override port with `MM_PORT`). Binds `127.0.0.1` only.
 - All bodies are JSON (`Content-Type: application/json`) except where noted (replay msgpack,
-  the conversion prompt which is `text/markdown`).
+  the conversion prompt which is JSON `{prompt}`).
 - No authentication. Localhost only. CORS allows exactly `http://localhost:5173` and
   `http://127.0.0.1:5173`.
 - **Units on the wire are SI: meters, radians, seconds** (speeds in m/s, rates in rad/s,
@@ -57,19 +57,21 @@ Schema links are relative to this file.
 | GET | `/api/mazes` | none | `[{id, name, seed, w, h, updated_at}]` newest first | live |
 | GET | `/api/mazes/:id` | none | MazeGraph | live |
 | PUT | `/api/mazes/:id` | MazeGraph | `{maze, validation}` | live |
-| GET | `/api/controllers/conversion-prompt` | none | `text/markdown` | planned M4 |
-| POST | `/api/controllers/validate` | `{code, lang:"rhai"}` | `{ok, errors, tunables, dry_run_trace?}` | planned M4 |
-| POST | `/api/controllers` | `{name, code}` | `{id, version}` | planned M4 |
-| GET | `/api/controllers` | none | `[{id, name, version}]` | planned M4 |
-| GET | `/api/controllers/:id` | none | `{id, name, version, code, tunables}` | planned M4 |
-| POST | `/api/runs` | [CreateRun](schemas/CreateRun.json) | `{run_id, seed, state}` | planned M3 |
-| GET | `/api/runs` | none | `[{id, state, seed}]` | planned M3 |
-| GET | `/api/runs/:id` | none | `{id, state, config, seed, metrics?}` | planned M3 |
-| POST | `/api/runs/:id/pause` | none | `{state}` | planned M3 |
-| POST | `/api/runs/:id/resume` | none | `{state}` | planned M3 |
-| POST | `/api/runs/:id/stop` | none | `{state}` | planned M3 |
-| GET | `/api/runs/:id/replay?format=msgpack\|json` | none | [Replay](schemas/Replay.json) | planned M3 |
-| GET | `/api/runs/:id/metrics` | none | [Metrics](schemas/Metrics.json) | planned M3 |
+| GET | `/api/controllers/conversion-prompt` | none | `{prompt}` | live |
+| POST | `/api/controllers/validate` | [ValidateController](schemas/ValidateController.json) `{code, lang?, robot_id?}` | [ValidationOutcome](schemas/ValidationOutcome.json) | live |
+| POST | `/api/controllers` | [SaveController](schemas/SaveController.json) `{id?, name, code}` | [ControllerSaved](schemas/ControllerSaved.json) | live |
+| GET | `/api/controllers` | none | [ControllerSummary](schemas/ControllerSummary.json)`[]` (latest versions) | live |
+| GET | `/api/controllers/:id?version=` | none | [ControllerDetail](schemas/ControllerDetail.json) | live |
+| GET | `/api/controllers/:id/versions` | none | [ControllerVersion](schemas/ControllerVersion.json)`[]` newest first | live |
+| POST | `/api/runs` | [CreateRun](schemas/CreateRun.json) | [RunCreated](schemas/RunCreated.json) `{id, seed, state}` | live |
+| GET | `/api/runs?limit=` | none | [RunSummary](schemas/RunSummary.json)`[]` newest first (default 50, max 1000) | live |
+| GET | `/api/runs/:id` | none | [RunDetail](schemas/RunDetail.json) | live |
+| POST | `/api/runs/:id/pause` | none | `{state}` | live |
+| POST | `/api/runs/:id/resume` | none | `{state}` | live |
+| POST | `/api/runs/:id/stop` | none | `{state}` | live |
+| GET | `/api/runs/:id/replay?format=msgpack\|json` | none | [Replay](schemas/Replay.json) | live |
+| GET | `/api/runs/:id/metrics` | none | [Metrics](schemas/Metrics.json) | live |
+| POST | `/api/runs/batch` | [BatchRequest](schemas/BatchRequest.json) `{base: CreateRun, seeds: [u64]}` | [BatchResponse](schemas/BatchResponse.json) | live |
 | POST | `/api/compare` | `{run_ids:[...]}` | aligned metrics | planned M5 |
 | POST | `/api/batch` | `{base: CreateRun, seeds:[...] \| count}` | `{job_id}` | planned M5 |
 | GET | `/api/tuner/params?controller_id=` | none | [TunableParam](schemas/TunableParam.json)`[]` | planned M5 |
@@ -79,7 +81,7 @@ Schema links are relative to this file.
 | GET | `/api/jobs` | none | `Job[]` | planned M5 |
 | GET | `/api/jobs/:id` | none | Job | planned M5 |
 | POST | `/api/jobs/:id/cancel` | none | Job | planned M5 |
-| WS | `/ws/runs/:id` | see WebSocket | | planned M3 |
+| WS | `/ws/runs/:id` | see WebSocket | | live |
 | WS | `/ws/jobs/:id` | see WebSocket | | planned M5 |
 
 All 404s for unknown ids use `not_found`; malformed bodies use `bad_request`; rule violations use
@@ -163,22 +165,54 @@ Mazes are stored server-side (SQLite). Ids are `maz_` + 12 hex chars in `header.
   tiles, validates, and stores the maze even when validation is not ok. Returns
   `{ "maze": MazeGraph, "validation": MazeValidation }`. Errors: `not_found`, `bad_request` (tile count mismatch).
 
-### Controllers (planned M4)
+### Controllers (live)
 
-- `GET /api/controllers/conversion-prompt`: `text/markdown`, the prompt that converts Arduino/C++ robot code to Rhai.
-- `POST /api/controllers/validate` `{ "code": "...", "lang": "rhai" }` returns
-  `{ "ok": bool, "errors": [{"line": 1, "col": 5, "message": "..."}], "tunables": [TunableParam], "dry_run_trace"?: [...] }`.
-- `POST /api/controllers` `{ "name": "wall follower", "code": "..." }` returns `{ "id": "ctl_1", "version": 1 }`
-  (saving the same name bumps `version`). Errors: `validation_failed` when the code does not compile.
+Scripts are Rhai (see `docs/CONTROLLER_CONVERSION_PROMPT.md`). Every saved version is kept. Three built-ins are seeded:
+`ctl_wall_follower`, `ctl_victim_check` (wall follower plus victim identification and the blue-tile stop) and `ctl_idle`.
 
-### Runs (planned M3)
+- `GET /api/controllers/conversion-prompt` returns `{ "prompt": "<markdown>" }` (changed from `text/markdown` in 0.3.0).
+- `POST /api/controllers/validate` `{ "code": "...", "lang"?: "rhai", "robot_id"?: "rob_..." }` returns a
+  [ValidationOutcome](schemas/ValidationOutcome.json) `{ ok, errors: [{line, col, message}], tunables: [TunableParam], dry_run_trace: [{t, commands, log}] }`.
+  Always 200; a script with errors has `ok: false`. The dry run uses `robot_id`'s sensors (default: the reference robot).
+- `POST /api/controllers` `{ "id"?, "name", "code" }` saves a new version. Without `id` a controller `ctl_<12 hex>` is
+  created at version 1; with `id` the version is the previous maximum plus one (`not_found` for an unknown id).
+  Returns `{ "id", "version", "tunables": [TunableParam], "validation": ValidationOutcome }`.
+  `422 validation_failed` (details: the compile errors) when the code does not compile; runtime problems found by the dry
+  run do not block saving, they show in `validation`. Fixture: [`controller_saved.json`](../fixtures/controller_saved.json).
+- `GET /api/controllers` returns `[{ id, name, version, created_at }]`, the latest version of each.
+- `GET /api/controllers/:id` returns `{ id, name, version, code, tunables, created_at }` for the latest version, or for
+  `?version=N`. `not_found` for an unknown id or version.
+- `GET /api/controllers/:id/versions` returns `[{ version, name, created_at }]`, newest first.
 
-`POST /api/runs` takes `CreateRun`, returns `{ "run_id": "run_1", "seed": 123456, "state": "queued" }`.
-`seed` is the resolved seed (drawn from OS entropy when `rng.mode` is `trng`). `speed` 0 means as fast as possible.
-`GET /api/runs/:id` returns `{ "id", "state": RunState, "config": CreateRun, "seed", "metrics"? }`; `metrics` appears once
-finished. `RunState` is `queued | running | paused | finished | stopped | failed`. `pause`/`resume`/`stop` return
-`{ "state" }` or `conflict` if the transition is not valid. `replay?format=` defaults to `json`; `msgpack` is
-`application/msgpack`. `404 not_found` for unknown ids; `409 conflict` if the run has not produced a replay yet.
+### Runs (live)
+
+`POST /api/runs` takes [CreateRun](schemas/CreateRun.json) and returns `{ "id": "run_<12 hex>", "seed": 42, "state": "queued" }`
+(fixture [`run_created.json`](../fixtures/run_created.json)). The run starts on its own thread right away.
+
+- Resolution: the robot, maze, controller (latest version) and error profile (a preset id: `clean`, `realistic`, `chaos`)
+  must exist, otherwise `404 not_found`. `rng.mode = "fixed"` needs `rng.seed` (`bad_request` without) and the seed is masked
+  to 53 bits; `trng` draws a fresh seed. `422 validation_failed` when the sim cannot be built (bad maze, script does not compile).
+- `speed`: 0 runs as fast as possible; otherwise sim time follows wall time times `speed`. Pacing only decides when steps run,
+  so the replay does not depend on it. `speed` must be 0 or positive.
+- Ending a run: a controller's `end_run` command does not end the run by itself. The run ends with `end_reason` `exited` only when the robot is on the start tile, holding `id_light` on and stationary for `exit_light_s` (rules profile); otherwise the sim emits a `note` event and keeps running. Frames carry colour readings and camera detections, and `Metrics` fills `victims_identified`, `misidentifications`, `decoy_false_positives` and `kits_used`.
+- `GET /api/runs?limit=N` returns `[{ id, maze_id, controller_id, seed, state, score_total, created_at }]`, newest first.
+  `score_total` is null until the run ends.
+- `GET /api/runs/:id` returns [RunDetail](schemas/RunDetail.json): `{ id, state, config: CreateRun, seed, maze_id, controller_id,
+  controller_version, end_reason, metrics, created_at, finished_at }`. `end_reason` (`time_up | exited | stopped | controller_fault`)
+  and `metrics` are null until the run ends. `state` is `queued | running | paused | finished | stopped | failed`:
+  `finished` = ended by time or exit, `stopped` = stopped by the user, `failed` = controller fault or server error.
+  Fixture: [`run_detail.json`](../fixtures/run_detail.json).
+- `GET /api/runs/:id/metrics` returns the [Metrics](schemas/Metrics.json); `409 conflict` until the run has ended.
+- `GET /api/runs/:id/replay` returns the [Replay](schemas/Replay.json) as JSON, or MessagePack (`application/msgpack`) with
+  `?format=msgpack` or `Accept: application/msgpack`. `?format=json|msgpack` wins over the header. `409 conflict` while the
+  run is live. Replays of the same seed are byte identical except `header.run_id` and `header.created_at`.
+- `POST /api/runs/:id/pause|resume|stop` return `{ "state" }` (`paused`, `running`, and the stored final state for stop;
+  stop waits for the result to be stored, up to 5 s). `409 conflict` if the run is not live, already paused (pause), not
+  paused (resume). `404` for unknown ids.
+- `POST /api/runs/batch` `{ "base": CreateRun, "seeds": [1,2,3] }` (1 to 500 seeds) runs every seed headless
+  (`rng` = fixed with that seed, `speed` 0), at most `available_parallelism` at a time, and answers when all are done:
+  `{ "runs": [{ id, seed, state, score_total }], "summary": { count, scored, mean_score, min_score, max_score } }`.
+  The runs are normal stored runs. (`POST /api/batch`, the M5 job version, is still 501.)
 
 ### Compare and batch (planned M5)
 
@@ -209,31 +243,41 @@ returns `{ "job_id" }`; the job result is `{ "runs": [{run_id, seed, metrics}], 
 "progress": 0.0-1.0, "result"?: {...}, "error"?: {code, message} }`. `POST /api/jobs/:id/cancel` returns the job;
 `conflict` if already finished.
 
-## WebSocket (planned)
+## WebSocket
 
-Text frames, one JSON object each, discriminated by `type`.
+Text frames, one JSON object each, discriminated by `type`. Types: [WsServerMessage](schemas/WsServerMessage.json),
+[WsClientMessage](schemas/WsClientMessage.json). Example sequence: [`ws_messages.json`](../fixtures/ws_messages.json).
 
 ### `WS /ws/runs/:id`
 
-Server to client:
+`404` (HTTP, before the upgrade) for an unknown run. Server to client:
 
 ```json
-{ "type": "frame", "t": 1.24, "pose": {"x":0.14,"y":0.14,"z":0,"roll":0,"pitch":0,"yaw":0}, "wheels": [], "imu": {}, "tof": [], "color": [], "cams": [], "id_light": false }
-{ "type": "event", "t": 1.3, "kind_type": "tile_enter" }
-{ "type": "state", "state": "running" }
+{ "type": "hello", "run": {"...": "RunDetail"}, "maze": {"...": "MazeGraph"} }
+{ "type": "frame", "frame": {"t": 1.24, "pose": {}, "wheels": [], "imu": {}, "tof": [], "color": [], "cams": [], "id_light": false} }
+{ "type": "event", "t": 1.3, "event": {"type": "tile_enter", "tile": {"col": 1, "row": 0}} }
+{ "type": "state", "state": "paused" }
 { "type": "dropped", "count": 12 }
-{ "type": "end", "metrics": { "...": "Metrics" } }
+{ "type": "end", "reason": "time_up", "metrics": {"...": "Metrics"} }
 ```
 
-- `frame` is a [Frame](schemas/Frame.json) with `type` added; `event` is an [Event](schemas/Event.json) with `type`
-  added. Because `Event` carries its own `type` field (the event kind, e.g. `tile_enter`), the event message nests it:
-  `{"type":"event","t":1.3,"event":{"type":"tile_enter","tile":{"col":1,"row":0}}}`. (Decision, see Changelog.)
-- Frames stream at about 25 Hz of sim time (scaled by `speed`).
-- `dropped` is the backpressure marker: the server skipped `count` frames because the client was slow. Events are never dropped.
-- `state` is sent on every `RunState` change; `end` is the last message, then the server closes.
+- `hello` is always first: the run as `GET /api/runs/:id` returns it and the stored maze it was created from.
+- `frame.frame` is a [Frame](schemas/Frame.json). Frames stream at about 25 Hz of sim time (the replay's `frame_dt_s`), so at
+  `speed` s they arrive at 25 s per wall second. For `speed` 0 the stream is throttled to at most 30 messages per second of
+  wall time; ask for the replay when you need every frame.
+- `event.event` is the [Event](schemas/Event.json) without `t` (its own `type` names the kind, e.g. `tile_enter`), `event.t` is
+  the sim time. Every event of the run is delivered exactly once and in order.
+- A connection made mid-run first receives all events so far, then the latest frame, then live traffic.
+- `state` is sent when a live run pauses or resumes.
+- Backpressure: the server never blocks the simulation for a slow client. If the client falls behind, queued messages are
+  skipped (frames are lost for good), the missed events are re-sent from the run's event log, and a `dropped` message with the
+  number of skipped messages follows. Events are never lost.
+- `end` is the last message (all events before it), then the server closes the socket. Connecting to a run that already ended
+  gives `hello`, `end`, close. A run that failed has `reason` `controller_fault` (a server-side failure or restart without stored
+  metrics sends zeroed `metrics`).
 
-Client to server: `{ "type": "resume", "from_t": 12.5 }` backfills frames and events from the replay starting at
-`from_t` (use after reconnecting).
+Client to server: `{ "type": "stop" }`, `{ "type": "pause" }`, `{ "type": "resume" }`. They act like the REST calls; wrong-state
+requests are ignored silently (watch `state`), unknown messages are ignored.
 
 ### `WS /ws/jobs/:id`
 
@@ -250,7 +294,7 @@ Client to server: `{ "type": "resume", "from_t": 12.5 }` backfills frames and ev
 Replays are served as JSON or MessagePack with the same structure: `{ header, frames, events }`
 ([Replay](schemas/Replay.json)). Frames are strided at `header.frame_dt_s` (25 Hz); events keep full fidelity.
 Same seed gives a byte-identical replay (no wall-clock data except `header.created_at`, set by the server).
-Full specification: `docs/REPLAY_FORMAT.md` (coming in M3). Example: [`fixtures/replay_small.json`](../fixtures/replay_small.json).
+Full specification: `docs/REPLAY_FORMAT.md`. Example: [`fixtures/replay_small.json`](../fixtures/replay_small.json).
 
 ## Coordination
 
@@ -260,6 +304,14 @@ then bumps the version here, adds a Changelog line and updates the fixtures in t
 
 ## Changelog
 
+- **0.3.0** (2026-10-27): live: controllers (validate, save with versions, list, get, versions, conversion prompt; built-ins
+  `ctl_wall_follower`, `ctl_victim_check`, `ctl_idle`), runs (create, list, get, pause/resume/stop, replay json/msgpack, metrics,
+  `POST /api/runs/batch`) and `WS /ws/runs/:id`. Decisions: `conversion-prompt` now returns `{prompt}` instead of `text/markdown`;
+  `POST /api/runs` returns `id` (not `run_id`); the WS `frame` message nests the frame under `frame` and `end` carries `reason`
+  and `metrics`; added `hello` and `RunDetail` fields `maze_id`, `controller_id`, `controller_version`, `end_reason`, `created_at`,
+  `finished_at`; `/api/runs/:id/replay` also honours `Accept: application/msgpack`; the WS client-to-server `resume {from_t}`
+  backfill from 0.1.0 was dropped (reconnect and read the replay instead). New fixtures `run_created.json`, `run_detail.json`,
+  `ws_messages.json`, `controller_saved.json`; `health.json` reports 0.3.0.
 - **0.2.0** (2026-10-27): live: robot create/update/list/get (`rob_reference` seeded), maze generate (response is now `{maze, warnings, ascii}`), validate, list (summaries, not full graphs), get, put (response is `{maze, validation}`). `api_version` is 0.2.0. New fixtures `maze_generated.json`, `maze_generate_response.json`.
 - **0.1.0** (2026-10-27): initial draft. Live: health, spec, robot validation. Everything else registered and returning 501.
   Decisions: validation errors use HTTP 422; `event` WebSocket messages nest the `Event` under `event` to avoid clashing

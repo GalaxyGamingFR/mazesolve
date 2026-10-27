@@ -1,0 +1,1828 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "CamDetection": {
+      "properties": {
+        "bearing": {
+          "description": "Bearing in the camera frame, radians (left positive).",
+          "format": "double",
+          "type": "number"
+        },
+        "camera_id": {
+          "type": "string"
+        },
+        "captured_t": {
+          "description": "Sim time the frame was captured (detections arrive after latency).",
+          "format": "double",
+          "type": "number"
+        },
+        "confidence": {
+          "format": "double",
+          "type": "number"
+        },
+        "distance_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "kind": {
+          "$ref": "#/definitions/DetectionKind"
+        },
+        "rings": {
+          "items": {
+            "$ref": "#/definitions/RingColor"
+          },
+          "maxItems": 5,
+          "minItems": 5,
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/VictimStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Reported status for smileys; for cognitive targets see `rings`."
+        }
+      },
+      "required": [
+        "bearing",
+        "camera_id",
+        "captured_t",
+        "confidence",
+        "distance_m",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "ColorReading": {
+      "properties": {
+        "ch": {
+          "description": "AS7343 order: F1..F8, FZ, FY, FXL, NIR, Clear, Flicker. Raw counts.",
+          "items": {
+            "format": "float",
+            "type": "number"
+          },
+          "maxItems": 14,
+          "minItems": 14,
+          "type": "array"
+        },
+        "fresh": {
+          "type": "boolean"
+        },
+        "sensor_id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ch",
+        "fresh",
+        "sensor_id"
+      ],
+      "type": "object"
+    },
+    "CreateRun": {
+      "description": "`POST /api/runs` request body.",
+      "properties": {
+        "controller_id": {
+          "type": "string"
+        },
+        "error_profile_id": {
+          "description": "Preset id (`clean`, `realistic`, `chaos`) or a stored custom profile id.",
+          "type": "string"
+        },
+        "lop_enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "max_duration_s": {
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "maze_id": {
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": {
+            "format": "double",
+            "type": "number"
+          },
+          "default": {},
+          "description": "Controller tunable overrides, `name -> value`.",
+          "type": "object"
+        },
+        "rng": {
+          "$ref": "#/definitions/RngSpec"
+        },
+        "robot_id": {
+          "type": "string"
+        },
+        "speed": {
+          "description": "Live playback speed multiplier; 0 = as fast as possible (headless).",
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "controller_id",
+        "error_profile_id",
+        "maze_id",
+        "rng",
+        "robot_id",
+        "speed"
+      ],
+      "type": "object"
+    },
+    "DangerousZone": {
+      "properties": {
+        "entrance": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "tiles": {
+          "items": {
+            "$ref": "#/definitions/TileXY"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "entrance",
+        "tiles"
+      ],
+      "type": "object"
+    },
+    "DetectionKind": {
+      "enum": [
+        "smiley",
+        "cognitive"
+      ],
+      "type": "string"
+    },
+    "Dir": {
+      "description": "Compass side of a tile. North is +y.",
+      "enum": [
+        "north",
+        "east",
+        "south",
+        "west"
+      ],
+      "type": "string"
+    },
+    "EndReason": {
+      "enum": [
+        "time_up",
+        "exited",
+        "stopped",
+        "controller_fault"
+      ],
+      "type": "string"
+    },
+    "EventKind": {
+      "oneOf": [
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "run_start"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "tile": {
+              "$ref": "#/definitions/TileXY"
+            },
+            "type": {
+              "enum": [
+                "tile_enter"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "tile",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "tile": {
+              "$ref": "#/definitions/TileXY"
+            },
+            "type": {
+              "enum": [
+                "tile_exit"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "tile",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "collision"
+              ],
+              "type": "string"
+            },
+            "x": {
+              "format": "double",
+              "type": "number"
+            },
+            "y": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "x",
+            "y"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "tile": {
+              "$ref": "#/definitions/TileXY"
+            },
+            "type": {
+              "enum": [
+                "checkpoint"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "tile",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "tile": {
+              "$ref": "#/definitions/TileXY"
+            },
+            "type": {
+              "enum": [
+                "blue_stop"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "ok",
+            "tile",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "correct": {
+              "type": "boolean"
+            },
+            "points": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "reported": {
+              "$ref": "#/definitions/VictimStatus"
+            },
+            "type": {
+              "enum": [
+                "victim_identified"
+              ],
+              "type": "string"
+            },
+            "victim_id": {
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "correct",
+            "points",
+            "reported",
+            "type",
+            "victim_id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "victim_missed"
+              ],
+              "type": "string"
+            },
+            "victim_id": {
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "type",
+            "victim_id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "reported": {
+              "$ref": "#/definitions/VictimStatus"
+            },
+            "type": {
+              "enum": [
+                "misidentification"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "reported",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "decoy_false_positive"
+              ],
+              "type": "string"
+            },
+            "victim_id": {
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "type",
+            "victim_id"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "count": {
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "points": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "type": {
+              "enum": [
+                "kit_deployed"
+              ],
+              "type": "string"
+            },
+            "victim_id": {
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "count",
+            "points",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "points": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "tile": {
+              "$ref": "#/definitions/TileXY"
+            },
+            "type": {
+              "enum": [
+                "ramp_traversed"
+              ],
+              "type": "string"
+            },
+            "up": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "points",
+            "tile",
+            "type",
+            "up"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "points": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "tile": {
+              "$ref": "#/definitions/TileXY"
+            },
+            "type": {
+              "enum": [
+                "stairs_traversed"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "points",
+            "tile",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "points": {
+              "format": "int32",
+              "type": "integer"
+            },
+            "tile": {
+              "$ref": "#/definitions/TileXY"
+            },
+            "type": {
+              "enum": [
+                "speed_bump_traversed"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "points",
+            "tile",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "tile": {
+              "$ref": "#/definitions/TileXY"
+            },
+            "type": {
+              "enum": [
+                "entered_black"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "tile",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "restarts": {
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "to": {
+              "$ref": "#/definitions/TileXY"
+            },
+            "type": {
+              "enum": [
+                "lop_restart"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "restarts",
+            "to",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "message": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "controller_error"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "message",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "note"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "text",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "properties": {
+            "reason": {
+              "$ref": "#/definitions/EndReason"
+            },
+            "score": {
+              "$ref": "#/definitions/ScoreBreakdown"
+            },
+            "type": {
+              "enum": [
+                "run_end"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "reason",
+            "score",
+            "type"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Frame": {
+      "properties": {
+        "cams": {
+          "items": {
+            "$ref": "#/definitions/CamDetection"
+          },
+          "type": "array"
+        },
+        "color": {
+          "items": {
+            "$ref": "#/definitions/ColorReading"
+          },
+          "type": "array"
+        },
+        "id_light": {
+          "type": "boolean"
+        },
+        "imu": {
+          "$ref": "#/definitions/ImuReading"
+        },
+        "pose": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Pose3"
+            }
+          ],
+          "description": "Ground-truth pose."
+        },
+        "t": {
+          "format": "double",
+          "type": "number"
+        },
+        "tof": {
+          "description": "Only sensors that produced a fresh sample since the previous frame.",
+          "items": {
+            "$ref": "#/definitions/TofReading"
+          },
+          "type": "array"
+        },
+        "wheels": {
+          "items": {
+            "$ref": "#/definitions/WheelState"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": "array"
+        }
+      },
+      "required": [
+        "cams",
+        "color",
+        "id_light",
+        "imu",
+        "pose",
+        "t",
+        "tof",
+        "wheels"
+      ],
+      "type": "object"
+    },
+    "GridSize": {
+      "properties": {
+        "h": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "w": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "h",
+        "w"
+      ],
+      "type": "object"
+    },
+    "ImuReading": {
+      "properties": {
+        "accel": {
+          "description": "Specific force, m/s^2.",
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        },
+        "gyro": {
+          "description": "Body rates, rad/s.",
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        },
+        "pitch": {
+          "format": "double",
+          "type": "number"
+        },
+        "roll": {
+          "description": "Fused roll/pitch/yaw, radians (zeros for `raw_imu`).",
+          "format": "double",
+          "type": "number"
+        },
+        "yaw": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "accel",
+        "gyro",
+        "pitch",
+        "roll",
+        "yaw"
+      ],
+      "type": "object"
+    },
+    "MazeGraph": {
+      "properties": {
+        "grid": {
+          "$ref": "#/definitions/GridSize"
+        },
+        "header": {
+          "$ref": "#/definitions/MazeHeader"
+        },
+        "obstacles": {
+          "items": {
+            "$ref": "#/definitions/Obstacle"
+          },
+          "type": "array"
+        },
+        "tiles": {
+          "description": "Row-major: index = row * w + col.",
+          "items": {
+            "$ref": "#/definitions/Tile"
+          },
+          "type": "array"
+        },
+        "victims": {
+          "items": {
+            "$ref": "#/definitions/Victim"
+          },
+          "type": "array"
+        },
+        "walls": {
+          "items": {
+            "$ref": "#/definitions/Wall"
+          },
+          "type": "array"
+        },
+        "zones": {
+          "$ref": "#/definitions/Zones"
+        }
+      },
+      "required": [
+        "grid",
+        "header",
+        "obstacles",
+        "tiles",
+        "victims",
+        "walls",
+        "zones"
+      ],
+      "type": "object"
+    },
+    "MazeHeader": {
+      "properties": {
+        "generator_version": {
+          "type": "string"
+        },
+        "id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rules_profile": {
+          "type": "string"
+        },
+        "seed": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "tile_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "tolerance_frac": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "generator_version",
+        "rules_profile",
+        "seed",
+        "tile_m",
+        "tolerance_frac"
+      ],
+      "type": "object"
+    },
+    "Metrics": {
+      "properties": {
+        "collisions": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "coverage": {
+          "description": "tiles_visited / tiles_reachable.",
+          "format": "double",
+          "type": "number"
+        },
+        "decoy_false_positives": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "distance_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "duration_s": {
+          "format": "double",
+          "type": "number"
+        },
+        "exited": {
+          "type": "boolean"
+        },
+        "kits_used": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "misidentifications": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "realtime_factor": {
+          "description": "Sim seconds per wall-clock second (headless speed), if measured.",
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "restarts": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "score": {
+          "$ref": "#/definitions/ScoreBreakdown"
+        },
+        "tiles_reachable": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "tiles_visited": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "victims_identified": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "victims_total": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "collisions",
+        "coverage",
+        "decoy_false_positives",
+        "distance_m",
+        "duration_s",
+        "exited",
+        "kits_used",
+        "misidentifications",
+        "restarts",
+        "score",
+        "tiles_reachable",
+        "tiles_visited",
+        "victims_identified",
+        "victims_total"
+      ],
+      "type": "object"
+    },
+    "Obstacle": {
+      "properties": {
+        "center": {
+          "$ref": "#/definitions/Vec2"
+        },
+        "height_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "id": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "radius_m": {
+          "description": "Footprint as a circle; enough for kinematic collision.",
+          "format": "double",
+          "type": "number"
+        },
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        }
+      },
+      "required": [
+        "center",
+        "height_m",
+        "id",
+        "radius_m",
+        "tile"
+      ],
+      "type": "object"
+    },
+    "Pose3": {
+      "description": "Full 3D pose. Angles in radians.",
+      "properties": {
+        "pitch": {
+          "format": "double",
+          "type": "number"
+        },
+        "roll": {
+          "format": "double",
+          "type": "number"
+        },
+        "x": {
+          "format": "double",
+          "type": "number"
+        },
+        "y": {
+          "format": "double",
+          "type": "number"
+        },
+        "yaw": {
+          "format": "double",
+          "type": "number"
+        },
+        "z": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "pitch",
+        "roll",
+        "x",
+        "y",
+        "yaw",
+        "z"
+      ],
+      "type": "object"
+    },
+    "RingColor": {
+      "enum": [
+        "black",
+        "red",
+        "yellow",
+        "green",
+        "blue"
+      ],
+      "type": "string"
+    },
+    "RngMode": {
+      "oneOf": [
+        {
+          "description": "Fresh OS-entropy seed per run.",
+          "enum": [
+            "trng"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Caller-supplied seed: identical maze instance and noise realization.",
+          "enum": [
+            "fixed"
+          ],
+          "type": "string"
+        }
+      ]
+    },
+    "RngSpec": {
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/RngMode"
+        },
+        "seed": {
+          "description": "Required for `fixed`, ignored for `trng`.",
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "type": "object"
+    },
+    "RunDetail": {
+      "description": "`GET /api/runs/:id` response, also the `run` field of the WS `hello` message.",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/CreateRun"
+        },
+        "controller_id": {
+          "type": "string"
+        },
+        "controller_version": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "end_reason": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/EndReason"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "finished_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "maze_id": {
+          "type": "string"
+        },
+        "metrics": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Metrics"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Present once the run has ended."
+        },
+        "seed": {
+          "description": "The resolved seed (never null, also for `trng` runs).",
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "state": {
+          "$ref": "#/definitions/RunState"
+        }
+      },
+      "required": [
+        "config",
+        "controller_id",
+        "controller_version",
+        "created_at",
+        "id",
+        "maze_id",
+        "seed",
+        "state"
+      ],
+      "type": "object"
+    },
+    "RunState": {
+      "enum": [
+        "queued",
+        "running",
+        "paused",
+        "finished",
+        "stopped",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "ScoreBreakdown": {
+      "properties": {
+        "blue_tiles": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "checkpoints": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "exit_bonus": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "kits": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "penalties": {
+          "description": "Misidentifications, negative.",
+          "format": "int32",
+          "type": "integer"
+        },
+        "ramps": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "reliability": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "speed_bumps": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "stairs": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Never below 0 (5.6.14).",
+          "format": "int32",
+          "type": "integer"
+        },
+        "victims": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "blue_tiles",
+        "checkpoints",
+        "exit_bonus",
+        "kits",
+        "penalties",
+        "ramps",
+        "reliability",
+        "speed_bumps",
+        "stairs",
+        "total",
+        "victims"
+      ],
+      "type": "object"
+    },
+    "Tile": {
+      "properties": {
+        "at": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "class": {
+          "$ref": "#/definitions/TileClass"
+        },
+        "features": {
+          "items": {
+            "$ref": "#/definitions/TileFeature"
+          },
+          "type": "array"
+        },
+        "height_ref": {
+          "description": "Floor height of the tile's low edge, meters.",
+          "format": "double",
+          "type": "number"
+        },
+        "in_dz": {
+          "type": "boolean"
+        },
+        "kind": {
+          "$ref": "#/definitions/TileKind"
+        }
+      },
+      "required": [
+        "at",
+        "class",
+        "features",
+        "height_ref",
+        "in_dz",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "TileClass": {
+      "description": "Linear tiles touch a wall chain connected to the perimeter; floating ones do not.",
+      "enum": [
+        "linear",
+        "floating"
+      ],
+      "type": "string"
+    },
+    "TileFeature": {
+      "oneOf": [
+        {
+          "description": "Straight ramp rising toward `up_dir`, ending `rise_m` higher.",
+          "properties": {
+            "angle_deg": {
+              "format": "double",
+              "type": "number"
+            },
+            "rise_m": {
+              "format": "double",
+              "type": "number"
+            },
+            "type": {
+              "enum": [
+                "ramp"
+              ],
+              "type": "string"
+            },
+            "up_dir": {
+              "$ref": "#/definitions/Dir"
+            }
+          },
+          "required": [
+            "angle_deg",
+            "rise_m",
+            "type",
+            "up_dir"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Stairs rising toward `up_dir`.",
+          "properties": {
+            "step_m": {
+              "format": "double",
+              "type": "number"
+            },
+            "steps": {
+              "format": "uint32",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "tread_m": {
+              "format": "double",
+              "type": "number"
+            },
+            "type": {
+              "enum": [
+                "stairs"
+              ],
+              "type": "string"
+            },
+            "up_dir": {
+              "$ref": "#/definitions/Dir"
+            }
+          },
+          "required": [
+            "step_m",
+            "steps",
+            "tread_m",
+            "type",
+            "up_dir"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Speed bump across the tile, perpendicular to `across`.",
+          "properties": {
+            "across": {
+              "$ref": "#/definitions/Dir"
+            },
+            "height_m": {
+              "format": "double",
+              "type": "number"
+            },
+            "type": {
+              "enum": [
+                "speed_bump"
+              ],
+              "type": "string"
+            },
+            "width_m": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          "required": [
+            "across",
+            "height_m",
+            "type",
+            "width_m"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "TileKind": {
+      "oneOf": [
+        {
+          "enum": [
+            "normal",
+            "start"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Hole: never entered, acts as a virtual wall.",
+          "enum": [
+            "black"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Checkpoint (reflective floor).",
+          "enum": [
+            "silver"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Puddle: robot must stop for `blue_stop_s`.",
+          "enum": [
+            "blue"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Entrance of the Dangerous Zone.",
+          "enum": [
+            "red"
+          ],
+          "type": "string"
+        }
+      ]
+    },
+    "TileXY": {
+      "description": "Grid cell address.",
+      "properties": {
+        "col": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "row": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "col",
+        "row"
+      ],
+      "type": "object"
+    },
+    "TofReading": {
+      "properties": {
+        "fresh": {
+          "description": "True when this step carries a new sample.",
+          "type": "boolean"
+        },
+        "sensor_id": {
+          "type": "string"
+        },
+        "status": {
+          "items": {
+            "format": "uint8",
+            "minimum": 0.0,
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        "zones": {
+          "description": "Row-major zones, `resolution^2` long. Millimeters.",
+          "items": {
+            "format": "uint16",
+            "minimum": 0.0,
+            "type": "integer"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "fresh",
+        "sensor_id",
+        "status",
+        "zones"
+      ],
+      "type": "object"
+    },
+    "Vec2": {
+      "properties": {
+        "x": {
+          "format": "double",
+          "type": "number"
+        },
+        "y": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "type": "object"
+    },
+    "Vec3": {
+      "properties": {
+        "x": {
+          "format": "double",
+          "type": "number"
+        },
+        "y": {
+          "format": "double",
+          "type": "number"
+        },
+        "z": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "type": "object"
+    },
+    "Victim": {
+      "properties": {
+        "facing_yaw": {
+          "description": "Yaw of the wall's outward normal (the direction the victim faces).",
+          "format": "double",
+          "type": "number"
+        },
+        "id": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/definitions/VictimKind"
+        },
+        "pos": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Vec3"
+            }
+          ],
+          "description": "Center of the victim on the wall face, world meters."
+        },
+        "rotation": {
+          "description": "In-plane rotation of the printed target, radians.",
+          "format": "double",
+          "type": "number"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/VictimStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Ground-truth status (`None` for decoys)."
+        },
+        "tier": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/VictimTier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "wall_side": {
+          "$ref": "#/definitions/Dir"
+        }
+      },
+      "required": [
+        "facing_yaw",
+        "id",
+        "kind",
+        "pos",
+        "rotation",
+        "tile",
+        "wall_side"
+      ],
+      "type": "object"
+    },
+    "VictimKind": {
+      "oneOf": [
+        {
+          "description": "Emoji face: sad = harmed, neutral = stable, happy = unharmed.",
+          "properties": {
+            "status": {
+              "$ref": "#/definitions/VictimStatus"
+            },
+            "type": {
+              "enum": [
+                "smiley"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Five concentric rings, innermost first; the colour values sum to the status.",
+          "properties": {
+            "rings": {
+              "items": {
+                "$ref": "#/definitions/RingColor"
+              },
+              "maxItems": 5,
+              "minItems": 5,
+              "type": "array"
+            },
+            "type": {
+              "enum": [
+                "cognitive"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "rings",
+            "type"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Looks like a victim, is not one. Identifying it is a misidentification.",
+          "properties": {
+            "type": {
+              "enum": [
+                "decoy"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "VictimStatus": {
+      "enum": [
+        "harmed",
+        "stable",
+        "unharmed"
+      ],
+      "type": "string"
+    },
+    "VictimTier": {
+      "enum": [
+        "linear",
+        "floating"
+      ],
+      "type": "string"
+    },
+    "Wall": {
+      "description": "Wall segment in world meters. `edge` ties it back to the grid when it sits on one.",
+      "properties": {
+        "a": {
+          "$ref": "#/definitions/Vec2"
+        },
+        "b": {
+          "$ref": "#/definitions/Vec2"
+        },
+        "edge": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/WallEdge"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "height_m": {
+          "format": "double",
+          "type": "number"
+        },
+        "z0": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "a",
+        "b",
+        "height_m",
+        "z0"
+      ],
+      "type": "object"
+    },
+    "WallEdge": {
+      "properties": {
+        "side": {
+          "$ref": "#/definitions/Dir"
+        },
+        "tile": {
+          "$ref": "#/definitions/TileXY"
+        }
+      },
+      "required": [
+        "side",
+        "tile"
+      ],
+      "type": "object"
+    },
+    "WheelState": {
+      "properties": {
+        "actual": {
+          "format": "double",
+          "type": "number"
+        },
+        "cmd": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "actual",
+        "cmd"
+      ],
+      "type": "object"
+    },
+    "Zones": {
+      "properties": {
+        "checkpoints": {
+          "items": {
+            "$ref": "#/definitions/TileXY"
+          },
+          "type": "array"
+        },
+        "dangerous_zone": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/DangerousZone"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "start": {
+          "$ref": "#/definitions/TileXY"
+        },
+        "start_yaw": {
+          "format": "double",
+          "type": "number"
+        }
+      },
+      "required": [
+        "checkpoints",
+        "start",
+        "start_yaw"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "Server to client messages on `/ws/runs/:id`, discriminated by `type`.",
+  "oneOf": [
+    {
+      "description": "First message. `maze` is the stored maze the run was created from.",
+      "properties": {
+        "maze": {
+          "$ref": "#/definitions/MazeGraph"
+        },
+        "run": {
+          "$ref": "#/definitions/RunDetail"
+        },
+        "type": {
+          "enum": [
+            "hello"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "maze",
+        "run",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "properties": {
+        "frame": {
+          "$ref": "#/definitions/Frame"
+        },
+        "type": {
+          "enum": [
+            "frame"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "frame",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "description": "`event` is the event kind (its own `type` field names the kind); `t` is sim time.",
+      "properties": {
+        "event": {
+          "$ref": "#/definitions/EventKind"
+        },
+        "t": {
+          "format": "double",
+          "type": "number"
+        },
+        "type": {
+          "enum": [
+            "event"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "event",
+        "t",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "description": "Sent when a live run changes state (pause/resume).",
+      "properties": {
+        "state": {
+          "$ref": "#/definitions/RunState"
+        },
+        "type": {
+          "enum": [
+            "state"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "state",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "description": "The client was too slow and `count` frames were skipped. Events are never skipped.",
+      "properties": {
+        "count": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "type": {
+          "enum": [
+            "dropped"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "count",
+        "type"
+      ],
+      "type": "object"
+    },
+    {
+      "description": "Last message; the server closes the socket after it.",
+      "properties": {
+        "metrics": {
+          "$ref": "#/definitions/Metrics"
+        },
+        "reason": {
+          "$ref": "#/definitions/EndReason"
+        },
+        "type": {
+          "enum": [
+            "end"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "metrics",
+        "reason",
+        "type"
+      ],
+      "type": "object"
+    }
+  ],
+  "title": "WsServerMessage"
+}

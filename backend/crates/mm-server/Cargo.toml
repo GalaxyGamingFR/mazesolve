@@ -17,9 +17,12 @@ path = "src/bin/mm_schemas.rs"
 [dependencies]
 mm-core.workspace = true
 mm-maze.workspace = true
+mm-sim.workspace = true
+mm-controller.workspace = true
 rusqlite.workspace = true
 getrandom.workspace = true
-axum.workspace = true
+axum = { workspace = true, features = ["ws"] }
+futures-util.workspace = true
 tower-http.workspace = true
 tokio.workspace = true
 serde.workspace = true
@@ -33,3 +36,4 @@ tracing-subscriber.workspace = true
 [dev-dependencies]
 tower.workspace = true
 http-body-util.workspace = true
+tokio-tungstenite.workspace = true

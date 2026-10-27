@@ -9,6 +9,7 @@ pub mod robots;
 pub mod runs;
 pub mod spec;
 pub mod tuner;
+pub mod ws;
 
 use axum::Router;
 
@@ -23,6 +24,7 @@ pub fn router() -> Router<AppState> {
         .merge(mazes::routes())
         .merge(controllers::routes())
         .merge(runs::routes())
+        .merge(ws::routes())
         .merge(tuner::routes())
         .merge(jobs::routes())
 }

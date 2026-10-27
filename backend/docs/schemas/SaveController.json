@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "`POST /api/controllers` body.",
+  "properties": {
+    "code": {
+      "type": "string"
+    },
+    "id": {
+      "default": null,
+      "description": "Present: save a new version of this controller. Absent: create a controller.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "code",
+    "name"
+  ],
+  "title": "SaveController",
+  "type": "object"
+}

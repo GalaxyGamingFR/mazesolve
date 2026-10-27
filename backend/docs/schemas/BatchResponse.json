@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "BatchRun": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "score_total": {
+          "format": "int32",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "seed": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "state": {
+          "$ref": "#/definitions/RunState"
+        }
+      },
+      "required": [
+        "id",
+        "seed",
+        "state"
+      ],
+      "type": "object"
+    },
+    "BatchSummary": {
+      "properties": {
+        "count": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "max_score": {
+          "format": "int32",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "mean_score": {
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "min_score": {
+          "format": "int32",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "scored": {
+          "description": "Runs that ended with a score (finished or stopped).",
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "count",
+        "scored"
+      ],
+      "type": "object"
+    },
+    "RunState": {
+      "enum": [
+        "queued",
+        "running",
+        "paused",
+        "finished",
+        "stopped",
+        "failed"
+      ],
+      "type": "string"
+    }
+  },
+  "properties": {
+    "runs": {
+      "items": {
+        "$ref": "#/definitions/BatchRun"
+      },
+      "type": "array"
+    },
+    "summary": {
+      "$ref": "#/definitions/BatchSummary"
+    }
+  },
+  "required": [
+    "runs",
+    "summary"
+  ],
+  "title": "BatchResponse",
+  "type": "object"
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "RunState": {
+      "enum": [
+        "queued",
+        "running",
+        "paused",
+        "finished",
+        "stopped",
+        "failed"
+      ],
+      "type": "string"
+    }
+  },
+  "properties": {
+    "controller_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "maze_id": {
+      "type": "string"
+    },
+    "score_total": {
+      "description": "Final score; null until the run has ended.",
+      "format": "int32",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "seed": {
+      "format": "uint64",
+      "minimum": 0.0,
+      "type": "integer"
+    },
+    "state": {
+      "$ref": "#/definitions/RunState"
+    }
+  },
+  "required": [
+    "controller_id",
+    "created_at",
+    "id",
+    "maze_id",
+    "seed",
+    "state"
+  ],
+  "title": "RunSummary",
+  "type": "object"
+}
