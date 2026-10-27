@@ -152,6 +152,10 @@ impl Sim {
         imu.update(0.0, backend.body(), false);
         let mut tof = TofArray::new(&robot, &errors.tof, &rng);
         tof.sample_due(0.0, backend.body(), &world);
+        let mut color = ColorArray::new(&robot, &errors.color, &rng);
+        color.sample_due(0.0, backend.body(), &world);
+        let mut camera = CameraArray::new(&robot, &errors.camera, &rng);
+        camera.sample_due(0.0, backend.body(), &world);
 
         let header = ReplayHeader {
             format_version: REPLAY_FORMAT_VERSION,
@@ -180,8 +184,8 @@ impl Sim {
             backend: Box::new(backend),
             tof,
             imu,
-            color: ColorArray::new(&robot),
-            camera: CameraArray::new(&robot),
+            color,
+            camera,
             game,
             start,
             controller_dt: tm.controller_dt_s,
@@ -260,7 +264,7 @@ impl Sim {
         };
         self.apply_commands(&cmds);
         self.advance();
-        if cmds.end_run {
+        if self.game.exit_ready() {
             self.finish(EndReason::Exited)
         } else if self.tick >= self.total_ticks {
             self.finish(EndReason::TimeUp)
@@ -340,6 +344,10 @@ impl Sim {
                 .iter()
                 .filter(|v| !matches!(v.kind, VictimKind::Decoy))
                 .count() as u32,
+            victims_identified: self.game.stats.victims_identified,
+            misidentifications: self.game.stats.misidentifications,
+            decoy_false_positives: self.game.stats.decoy_false_positives,
+            kits_used: self.game.stats.kits_used,
             distance_m: self.distance,
             ..Default::default()
         }
@@ -393,7 +401,7 @@ impl Sim {
             t: self.t,
             tof: self.tof.observe(),
             color: self.color.observe(),
-            cams: self.camera.observe(),
+            cams: self.camera.observe(self.t),
             imu: self.imu.reading(),
             encoders: self.backend.encoders(),
             kits_left: self.game.kits_left,
@@ -408,6 +416,7 @@ impl Sim {
         }
         let ctx = GameCtx {
             t,
+            dt: self.controller_dt,
             rules: &self.rules,
             maze: &self.world.maze,
             pose: self.pose(),
@@ -435,6 +444,8 @@ impl Sim {
             }
             self.update_tile(ts);
             self.tof.sample_due(ts, self.backend.body(), &self.world);
+            self.color.sample_due(ts, self.backend.body(), &self.world);
+            self.camera.sample_due(ts, self.backend.body(), &self.world);
         }
         self.tick += 1;
         self.t = self.tick as f64 * self.controller_dt;
@@ -449,11 +460,31 @@ impl Sim {
         if now == self.cur_tile {
             return;
         }
+        let mut exit_restart = false;
         if let Some(old) = self.cur_tile {
             self.push(ts, EventKind::TileExit { tile: old });
+            let ctx = GameCtx {
+                t: ts,
+                dt: self.controller_dt,
+                rules: &self.rules,
+                maze: &self.world.maze,
+                pose: self.pose(),
+                speed: self.backend.body().v,
+            };
+            let mut out = Vec::new();
+            let early_blue = self.game.on_tile_exit(&ctx, old, &mut out);
+            for k in out {
+                self.push(ts, k);
+            }
+            exit_restart = early_blue && self.lop_enabled;
         }
         self.cur_tile = now;
-        let Some(tile) = now else { return };
+        let Some(tile) = now else {
+            if exit_restart {
+                self.lop_restart(ts);
+            }
+            return;
+        };
         self.push(ts, EventKind::TileEnter { tile });
         let kind = self
             .world
@@ -465,6 +496,7 @@ impl Sim {
         }
         let ctx = GameCtx {
             t: ts,
+            dt: self.controller_dt,
             rules: &self.rules,
             maze: &self.world.maze,
             pose: self.pose(),
@@ -477,6 +509,8 @@ impl Sim {
         }
         if kind == TileKind::Black {
             self.push(ts, EventKind::EnteredBlack { tile });
+            self.lop_restart(ts);
+        } else if exit_restart {
             self.lop_restart(ts);
         }
     }
@@ -532,6 +566,7 @@ impl Sim {
         self.record_frame();
         let ctx = GameCtx {
             t: self.t,
+            dt: self.controller_dt,
             rules: &self.rules,
             maze: &self.world.maze,
             pose: self.pose(),

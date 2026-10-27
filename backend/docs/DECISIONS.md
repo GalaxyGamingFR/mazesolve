@@ -18,3 +18,14 @@ and on a black-tile entry or a blue-tile early exit. It can be switched off per 
 
 ## D3: seeds are below 2^53
 `SEED_MASK` keeps seeds JSON-number-safe for the JavaScript frontend.
+
+## D4: a wrong status on a real victim is a misidentification
+Reporting the wrong status for a victim that is in range gives `VictimIdentified{correct:false, points:0}`
+and applies `scoring.misidentification` (counted in `Metrics.misidentifications`). The victim is then
+spent: it cannot be re-reported, and it is not identified, so it ends as `VictimMissed`.
+The same applies to a decoy (`DecoyFalsePositive`, once per decoy). Interpretations that go with it:
+- `end_run` is no longer an unconditional exit. The run ends `Exited` only when the robot is on the start
+  tile with `id_light` held on and stationary for `play.exit_light_s`; `end_run` otherwise adds a `Note`.
+- A ramp scores only for a full traversal up its `up_dir`; stairs and speed bumps for a full traversal either way.
+- A cognitive target's status comes from its ring sum (2 harmed, 1 stable, 0 unharmed, as in mm-maze).
+See `SCORING.md` for the full rule -> code map.
