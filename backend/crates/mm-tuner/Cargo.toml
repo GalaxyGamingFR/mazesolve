@@ -1,6 +1,17 @@
 [package]
 name = "mm-tuner"
-version = "0.1.0"
-edition = "2024"
+description = "Muse-driven suggestions and auto-tuning for MazeMuse controllers."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
 
 [dependencies]
+mm-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+schemars.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+reqwest.workspace = true
+async-trait.workspace = true
+rand.workspace = true

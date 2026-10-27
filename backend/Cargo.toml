@@ -15,7 +15,7 @@ mm-sim = { path = "crates/mm-sim" }
 mm-controller = { path = "crates/mm-controller" }
 mm-tuner = { path = "crates/mm-tuner" }
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde_json = { version = "1", features = ["float_roundtrip"] }
 schemars = "0.8"
 thiserror = "1"
 anyhow = "1"
